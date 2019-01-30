@@ -19,6 +19,10 @@ Tegan::Display::Display ()
 	keypad(stdscr, TRUE);
 	curs_set(0);
 
+	if (has_colors()) {
+		start_color();
+	}
+
 	// Window 1 (half screen, upper).
 	w1_height = LINES / 2;
 	w1_width  = COLS - 4;
@@ -65,32 +69,96 @@ Tegan::Display::Display ()
 }
 
 void Tegan::Display::run_loop() {
+	static int window_selected = 0; // move to class
+
 	while((this->keypress = getch()) != 'q')
 	{	
 		switch(this->keypress)
 		{	
 			case KEY_LEFT:
-				//destroy_win(my_win);
-				//my_win = create_newwin(height, width, starty,--startx);
+				if (window > 0)
+				{
+					window --;
+				}
+				else
+				{
+					window = 3;
+				}
+				Tegan::Display::set_
 				break;
+
 			case KEY_RIGHT:
-				//destroy_win(my_win);
-				//my_win = create_newwin(height, width, starty,++startx);
+				if (window < 0)
+				{
+					window ++;
+				}
+				else
+				{
+					window = 0;
+				}
 				break;
+
 			case KEY_UP:
-				//destroy_win(my_win);
-				//my_win = create_newwin(height, width, --starty,startx);
-				break;
 			case KEY_DOWN:
-				//destroy_win(my_win);
-				//my_win = create_newwin(height, width, ++starty,startx);
-				break;	
+				if (window == 0)
+				{
+					window = 1;
+				}
+				else
+				{
+					window = 0;
+				}
+				break;
 		}
 	}
 }
 
 Tegan::Display::~Display() {
 	endwin();
+}
+
+void Tegan::Display::set_window_active(int window_number)
+{
+	if (has_colors()) {
+		init_pair (1, COLOR_CYAN, COLOR_BLACK);
+		init_pair (2, COLOR_WHITE, COLOR_BLACK);
+
+		switch (window_number)
+		{
+			case 0:
+				wbkgd(window_1, COLOR_PAIR(1));
+				wbkgd(window_2, COLOR_PAIR(2));
+				wbkgd(window_3, COLOR_PAIR(2));
+				wbkgd(window_4, COLOR_PAIR(2));
+				break;
+
+			case 1:
+				wbkgd(window_1, COLOR_PAIR(2));
+				wbkgd(window_2, COLOR_PAIR(1));
+				wbkgd(window_3, COLOR_PAIR(2));
+				wbkgd(window_4, COLOR_PAIR(2));
+				break;
+
+			case 2:
+				wbkgd(window_1, COLOR_PAIR(2));
+				wbkgd(window_2, COLOR_PAIR(2));
+				wbkgd(window_3, COLOR_PAIR(1));
+				wbkgd(window_4, COLOR_PAIR(2));
+				break;
+
+			case 3:
+				wbkgd(window_1, COLOR_PAIR(2));
+				wbkgd(window_2, COLOR_PAIR(2));
+				wbkgd(window_3, COLOR_PAIR(2));
+				wbkgd(window_4, COLOR_PAIR(1));
+				break;
+		}
+
+		wrefresh(window_1);
+		wrefresh(window_2);
+		wrefresh(window_3);
+		wrefresh(window_4);
+	}
 }
 
 WINDOW* Tegan::Display::create_newwin(int height, int width, int starty, int startx)
@@ -106,10 +174,10 @@ WINDOW* Tegan::Display::create_newwin(int height, int width, int starty, int sta
 }
 
 void Tegan::Display::destroy_win(WINDOW *local_win)
-{
+{	
 	wborder(local_win, ' ', ' ', ' ',' ',' ',' ',' ',' ');
-
 	wrefresh(local_win);
 	delwin(local_win);
 }
+
 
