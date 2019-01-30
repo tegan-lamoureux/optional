@@ -1,6 +1,8 @@
 #ifndef TEGAN_DISPLAY_H
 #define TEGAN_DISPLAY_H
 
+#include <ncurses.h>
+
 namespace Tegan {
 
 class Display
@@ -13,6 +15,10 @@ class Display
 
 	private:
 		int num;
+		int keypress;
+
+		WINDOW *create_newwin(int height, int width, int starty, int startx);
+		void destroy_win(WINDOW *local_win);
 };
 
 }
