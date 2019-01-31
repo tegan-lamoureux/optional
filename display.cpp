@@ -4,11 +4,6 @@
 Tegan::Display::Display () 
 	: num(0)
 {
-	WINDOW *window_1;
-	WINDOW *window_2;
-	WINDOW *window_3;
-	WINDOW *window_4;
-	
 	int w1_startx, w1_starty, w1_width, w1_height;
 	int w2_startx, w2_starty, w2_width, w2_height;
 	int w3_startx, w3_starty, w3_width, w3_height;
@@ -21,6 +16,8 @@ Tegan::Display::Display ()
 
 	if (has_colors()) {
 		start_color();
+		init_pair (1, COLOR_CYAN, COLOR_BLACK);
+		init_pair (2, COLOR_WHITE, COLOR_BLACK);
 	}
 
 	// Window 1 (half screen, upper).
@@ -47,8 +44,8 @@ Tegan::Display::Display ()
 	w4_starty = LINES / 2 + 1;
 	w4_startx = 2 * (COLS / 3) + 1;
 	
-	//printw("   Hello. Welcome to Optional.");
-	//mvprintw(LINES-1, 0, "   Cash & Sweep: xxx.xx | Buying Power: xxx.xx | Open P/L: xx.xx%");
+	printw("   Hello. Welcome to Optional.");
+	mvprintw(LINES-1, 0, "   Cash & Sweep: xxx.xx | Buying Power: xxx.xx | Open P/L: xx.xx%");
 	refresh();
 
 	window_1 = Tegan::Display::create_newwin(w1_height, w1_width, w1_starty, w1_startx);
@@ -69,7 +66,7 @@ Tegan::Display::Display ()
 }
 
 void Tegan::Display::run_loop() {
-	static int window_selected = 0; // move to class
+	static int window = 0; // move to class
 
 	while((this->keypress = getch()) != 'q')
 	{	
@@ -84,7 +81,7 @@ void Tegan::Display::run_loop() {
 				{
 					window = 3;
 				}
-				Tegan::Display::set_
+				Tegan::Display::set_window(window);
 				break;
 
 			case KEY_RIGHT:
@@ -96,6 +93,7 @@ void Tegan::Display::run_loop() {
 				{
 					window = 0;
 				}
+				Tegan::Display::set_window(window);
 				break;
 
 			case KEY_UP:
@@ -108,6 +106,7 @@ void Tegan::Display::run_loop() {
 				{
 					window = 0;
 				}
+				Tegan::Display::set_window(window);
 				break;
 		}
 	}
@@ -117,11 +116,9 @@ Tegan::Display::~Display() {
 	endwin();
 }
 
-void Tegan::Display::set_window_active(int window_number)
+void Tegan::Display::set_window(int window_number)
 {
 	if (has_colors()) {
-		init_pair (1, COLOR_CYAN, COLOR_BLACK);
-		init_pair (2, COLOR_WHITE, COLOR_BLACK);
 
 		switch (window_number)
 		{
