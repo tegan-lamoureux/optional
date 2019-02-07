@@ -45,7 +45,7 @@ Tegan::Display::Display ()
 	w4_startx = 2 * (COLS / 3) + 1;
 	
 	printw("   Hello. Welcome to Optional.");
-	mvprintw(LINES-1, 0, "   Cash & Sweep: xxx.xx | Buying Power: xxx.xx | Open P/L: xx.xx%");
+	//mvprintw(LINES, 0, "   Cash & Sweep: xxx.xx | Buying Power: xxx.xx | Open P/L: xx.xx%"); FIXME: Put this somewhere.
 	refresh();
 
 	window_1 = Tegan::Display::create_newwin(w1_height, w1_width, w1_starty, w1_startx);
@@ -68,6 +68,7 @@ Tegan::Display::Display ()
 void Tegan::Display::run_loop() {
 	static int window = 0; // move to class
 
+	// Handle window movement. TODO: Abstract to method.
 	while((this->keypress = getch()) != 'q')
 	{	
 		switch(this->keypress)
@@ -81,11 +82,12 @@ void Tegan::Display::run_loop() {
 				{
 					window = 3;
 				}
+				printw("D_L:%d", window);
 				Tegan::Display::set_window(window);
 				break;
 
 			case KEY_RIGHT:
-				if (window < 0)
+				if (window < 3)
 				{
 					window ++;
 				}
@@ -93,6 +95,7 @@ void Tegan::Display::run_loop() {
 				{
 					window = 0;
 				}
+				printw("D_R:%d", window);
 				Tegan::Display::set_window(window);
 				break;
 
@@ -106,6 +109,7 @@ void Tegan::Display::run_loop() {
 				{
 					window = 0;
 				}
+				printw("D_UD:%d", window);
 				Tegan::Display::set_window(window);
 				break;
 		}
@@ -150,11 +154,11 @@ void Tegan::Display::set_window(int window_number)
 				wbkgd(window_4, COLOR_PAIR(1));
 				break;
 		}
-
-		wrefresh(window_1);
-		wrefresh(window_2);
-		wrefresh(window_3);
-		wrefresh(window_4);
+		refresh();
+		//wrefresh(window_1);
+		//wrefresh(window_2);
+		//wrefresh(window_3);
+		//wrefresh(window_4);
 	}
 }
 
