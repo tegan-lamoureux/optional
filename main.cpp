@@ -1,7 +1,9 @@
+#include "account.h"
 #include "display.h"
 
 int main(){
-	Tegan::Display display;
+    Optional::Account account;
+	Optional::Display display;
 
 	display.run_loop();
 

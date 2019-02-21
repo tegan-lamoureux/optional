@@ -1,0 +1,8 @@
+*.swp
+*.o
+*.config
+*.creator
+*.user
+*.files
+*.includes
+optional
