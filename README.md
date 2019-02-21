@@ -2,6 +2,11 @@
 
 A fast and simple terminal interface to the TD Ameritrade APIs for stock and options trading, written in ncurses and c++. 
 
+#### Building
+* Clone and cd into `optional`.
+* `mkdir build && cd build`
+* `cmake ../ && make`
+
 #### Features (TODO, at this point). 
 * Display a chart for a given symbol, input box for days wide and minutes per candlestick. 
 * Display list of current positions. 
