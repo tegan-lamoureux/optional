@@ -18,13 +18,12 @@ endif()
 
 set(sources
 
-	main.cpp
-	oauth.cpp
-	account.cpp
-	display.cpp
+	src/main.cpp
+	src/oauth.cpp
+	src/account.cpp
+	src/display.cpp
 )
 
 add_executable (${target_name} ${sources})
 target_link_libraries(${target_name} ${CURSES_LIBRARIES} ${BOOST_LIBRARIES}) 
 
-cmake --build
