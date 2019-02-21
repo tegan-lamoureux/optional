@@ -6,5 +6,6 @@
 *.files
 *.includes
 *.pem
+build/
 optional
 notes
