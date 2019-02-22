@@ -1,11 +1,19 @@
 #include "account.h"
 #include "display.h"
+#include "oauth.h"
 
+#include <string>
+#include <iostream>
+
+using namespace std;
 int main(){
-    Optional::Account account;
-	Optional::Display display;
+    // I should be writing unit tests.
+    Optional::OAuth oauth("ASD123", "https://localhost");
+    std::string test = "https://localhost/?code=asdasd12312332";
 
-	display.run_loop();
+    oauth.accept_authentication_code(test);
+
+    cout << oauth.debug();
 
 	return 0;
 }
