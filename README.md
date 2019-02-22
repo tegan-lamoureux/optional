@@ -2,10 +2,21 @@
 
 A fast and simple terminal interface to the TD Ameritrade APIs for stock and options trading, written in ncurses and c++. 
 
+#### Build Requirements
+* boost
+* curl
+* ncurses
+
 #### Building
 * Clone and cd into `optional`.
 * `mkdir build && cd build`
 * `cmake ../ && make`
+
+#### Dev TODO
+* add gtest and switch to tdd. COME ON, TEGAN ._.
+* uhh, maybe use curl instead of boost.beast? (if I only need get/put)
+
+***
 
 #### Features (TODO, at this point). 
 * Display a chart for a given symbol, input box for days wide and minutes per candlestick. 
