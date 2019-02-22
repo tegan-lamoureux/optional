@@ -26,7 +26,7 @@ bool Optional::OAuth::accept_authentication_code(std::string code) {
         auto location = code.find(search_term);
 
         if (location != std::string::npos && (location + search_term.length()) < code.length()) {
-            authentication_code = code.substr(location) + search_term.length();
+            authentication_code = code.substr(location + search_term.length());
             valid = true;
         }
     }
