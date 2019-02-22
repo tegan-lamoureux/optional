@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.2.0)
 
 project(Optional C CXX)
+
 set(target_name "optional")
+set(tests_name "${target_name}_unit_tests")
 
 
 #################
@@ -24,6 +26,12 @@ set(
     src/display.cpp
 )
 
+set(
+    tests_sources
+
+    tests/oauth_tests.cpp
+)
+
 
 #######################
 #### Required Libraries
@@ -41,6 +49,19 @@ if (Boost_FOUND)
 endif()
 
 #find_package(Curl REQUIRED) ugh this doesn't work
+
+
+######################
+#### Google Test Setup
+#
+# Downloads GTest from Google at configure time, and builds it at
+# project compile time in the build directory. 
+#
+# (You should really be doing out-of-source builds if you're not already.)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/tests")
+include(GoogleTest)
+
 
 #################
 #### Build Config
@@ -61,3 +82,20 @@ target_link_libraries(
     ${CURSES_LIBRARIES}
     ${BOOST_LIBRARIES}
 )
+
+
+#################
+#### Tests Config
+
+add_executable(
+    ${tests_name}
+
+    ${tests_sources}
+)
+
+target_link_libraries(
+    ${tests_name}
+
+    gtest_main
+)
+
