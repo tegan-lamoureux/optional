@@ -1,4 +1,5 @@
 #include "oauth.h"
+#include <curl/curl.h>
 
 Optional::OAuth::OAuth(std::string oauth_uid_in, std::string redirect_uri_in)
     : authorization_status(Unauthenticated)
@@ -8,6 +9,7 @@ Optional::OAuth::OAuth(std::string oauth_uid_in, std::string redirect_uri_in)
     , refresh_token("")
     , access_token("")
 {
+    curl_global_init(CURL_GLOBAL_ALL);
 }
 
 std::string Optional::OAuth::generate_authentication_url() {
@@ -37,6 +39,7 @@ bool Optional::OAuth::accept_authentication_code(std::string code) {
 std::string Optional::OAuth::generate_refresh_token() {
     // left off here. post to this->access_token_post_url with the given
     // authentication code and user info. same for access token.
+	
 }
 
 std::string Optional::OAuth::generate_access_token() {

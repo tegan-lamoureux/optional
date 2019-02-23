@@ -3,27 +3,45 @@ cmake_minimum_required(VERSION 3.2.0)
 project(Optional C CXX)
 
 set(target_name "optional")
-set(tests_name "${target_name}_unit_tests")
+
+# Target Names
+set(backend "${target_name}")
+set(ui "${target_name}_ui")
+set(app "${target_name}_app")
+set(tests "${target_name}_unit_tests")
 
 
 #################
 #### Source Files
 
 set(
-    headers
+    backend_sources
 
-    src/oauth.h
-    src/account.h
-    src/display.h
+    # Headers
+    src/backend/oauth.h
+    src/backend/account.h
+
+    # Source
+    src/backend/oauth.cpp
+    src/backend/account.cpp
 )
 
 set(
-    sources
+    ui_sources
 
+    # Headers
+    src/backend/oauth.h
+    src/backend/account.h
+
+    # Sources
+    src/backend/oauth.cpp
+    src/backend/account.cpp
+)
+
+set(
+    app_sources
+    
     src/main.cpp
-    src/oauth.cpp
-    src/account.cpp
-    src/display.cpp
 )
 
 set(
@@ -41,14 +59,18 @@ if (Curses_FOUND)
     include_directories(${CURSES_INCLUDE_DIR})
 endif()
 
-find_package(Threads REQUIRED)
-
-find_package(Boost REQUIRED)
-if (Boost_FOUND)
-    include_directories(${BOOST_INCLUDE_DIR})
+find_package(CURL REQUIRED)
+if (CURL_FOUND)
+    include_directories(${CURL_INCLUDE_DIR})
 endif()
 
-#find_package(Curl REQUIRED) ugh this doesn't work
+set(
+    common_libs
+
+    ${CMAKE_THREAD_LIBS_INIT}
+    ${CURSES_LIBRARIES}
+    ${CURL_LIBRARIES}
+)
 
 
 ######################
@@ -56,8 +78,6 @@ endif()
 #
 # Downloads GTest from Google at configure time, and builds it at
 # project compile time in the build directory. 
-#
-# (You should really be doing out-of-source builds if you're not already.)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/tests")
 include(GoogleTest)
@@ -68,19 +88,39 @@ include(GoogleTest)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(
-    ${target_name}
+add_library(
+    ${backend}
+    STATIC
 
-    ${headers}
-    ${sources}
+    ${backend_sources}
+)
+
+add_library(
+    ${ui}
+    STATIC
+
+    ${ui_sources}
+)
+
+add_executable(
+    ${app}
+
+    ${app_sources}
+)
+
+target_include_directories(
+	${app} PUBLIC
+
+	${CMAKE_SOURCE_DIR}/src/backend
+	${CMAKE_SOURCE_DIR}/src/ui
 )
 
 target_link_libraries(
-    ${target_name}
+    ${app}
 
-    ${CMAKE_THREAD_LIBS_INIT}
-    ${CURSES_LIBRARIES}
-    ${BOOST_LIBRARIES}
+    ${common_libs}
+    ${backend}
+    ${ui}
 )
 
 
@@ -88,14 +128,22 @@ target_link_libraries(
 #### Tests Config
 
 add_executable(
-    ${tests_name}
+    ${tests}
 
     ${tests_sources}
 )
 
+target_include_directories(
+	${tests} PUBLIC
+
+	${CMAKE_SOURCE_DIR}/src/backend
+)
+
 target_link_libraries(
-    ${tests_name}
+    ${tests}
 
     gtest_main
+    ${common_libs}
+    ${backend}
 )
 
