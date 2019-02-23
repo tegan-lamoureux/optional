@@ -1,4 +1,4 @@
-## optional 
+327a42e673c4b043d30304e77da3afa939678e05## optional 
 
 A fast and simple c++ interface to the TD Ameritrade APIs for stock and options trading.
 
@@ -19,7 +19,7 @@ A fast and simple c++ interface to the TD Ameritrade APIs for stock and options 
 ***
 
 #### What this is. (Or will be. It's in progress.)
-It's really two main components:
+It's two main components:
 1. A c++ back-end for algorithmic trading through TD Ameritrade (paper money or live trading).
   * Goal is a modular & fast interface that allows for quick backtesting and algorithm setup.
 2. A simple ncurses frontend to provide a basic terminal GUI for order placement/status, account stats, etc.
@@ -28,7 +28,7 @@ It's really two main components:
   * Display balances (Cash & Sweep, Net Liq, Buying Power).
   * Sell and buy options/stock through single line input.
 
-These will become more distinct as the project grows, right now I'll be happy getting a post to the api with the correct oauth token.
+These are both implemented as static libraries. Includes are messy and only work in the scope of this cmake file, but I'll export them to a final package eventually.
 
 #### More Info
 User guide (just a text dump at this point tbh) [is on the wiki](https://github.com/tegan-lamoureux/optional/wiki).
