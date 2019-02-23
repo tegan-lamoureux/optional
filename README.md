@@ -13,8 +13,7 @@ A fast and simple c++ interface to the TD Ameritrade APIs for stock and options 
 * `cmake ../ && make`
 
 #### Dev TODO
-* add gtest and switch to tdd. COME ON, TEGAN ._.
-* uhh, maybe use curl instead of boost.beast? (if I only need get/put)
+* keep going on oauth
 
 ***
 
