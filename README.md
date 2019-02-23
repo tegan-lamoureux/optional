@@ -1,4 +1,4 @@
-327a42e673c4b043d30304e77da3afa939678e05## optional 
+## optional 
 
 A fast and simple c++ interface to the TD Ameritrade APIs for stock and options trading.
 
