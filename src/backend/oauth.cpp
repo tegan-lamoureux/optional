@@ -10,6 +10,13 @@ Optional::OAuth::OAuth(std::string oauth_uid_in, std::string redirect_uri_in)
     , access_token("")
 {
     curl_global_init(CURL_GLOBAL_ALL);
+    
+    if (this->redirect_uri.empty()) {
+        this->redirect_uri = "https://null_value";
+    }
+    if (this->oauth_uid.empty()) {
+        this->oauth_uid = "null_value";
+    }
 }
 
 std::string Optional::OAuth::generate_authentication_url() {
