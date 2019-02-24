@@ -26,6 +26,8 @@ public:
 
     std::string generate_authentication_url();
     bool accept_authentication_code(std::string code);
+    
+    std::string get_authentication_code();
     std::string generate_refresh_token();
     std::string generate_access_token();
 
