@@ -54,6 +54,9 @@ set(
 #######################
 #### Required Libraries
 
+# rapidjson located locally.
+include_directories("${CMAKE_SOURCE_DIR}/src/rapidjson")
+
 find_package(Curses REQUIRED)
 if (Curses_FOUND)
     include_directories(${CURSES_INCLUDE_DIR})
