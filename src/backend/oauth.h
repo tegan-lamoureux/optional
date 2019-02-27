@@ -2,6 +2,7 @@
 #define OPTIONAL_OAUTH_H
 
 #include <string>
+#include <ctime>
 
 namespace Optional {
 
@@ -29,8 +30,7 @@ public:
     bool accept_authentication_code(std::string code);
     
     std::string get_authentication_code();
-    std::string generate_refresh_token();
-    std::string generate_access_token();
+    OAuthStatus generate_tokens();
 
     OAuthStatus get_status();
 
@@ -49,19 +49,17 @@ private:
     std::string refresh_token;
     std::string access_token;
 
-    static size_t read_callback(void *dest, size_t size, size_t nmemb, void *userp);
+    std::time_t refresh_expiration;
+    std::time_t access_expiration;
 
-    struct WriteThis {
-      const char *readptr;
-      size_t sizeleft;
+    // Get rid of this abomination.
+    struct refresh_token_return_data {
+      char *data;
+      size_t length;
     };
 
-    struct weird_string {
-      char *ptr;
-      size_t len;
-    };
-
-    static size_t writefunc(void *ptr, size_t size, size_t nmemb, struct weird_string *s);
+    // And fix this abomination.
+    static size_t curl_post_callback(void *ptr, size_t size, size_t nmemb, struct refresh_token_return_data *s);
 };
 
 }
