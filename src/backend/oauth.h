@@ -23,9 +23,12 @@ class OAuth
 {
 public:
     OAuth(std::string oauth_uid_in, std::string redirect_uri_in);
+    ~OAuth();
 
     std::string generate_authentication_url();
     bool accept_authentication_code(std::string code);
+    
+    std::string get_authentication_code();
     std::string generate_refresh_token();
     std::string generate_access_token();
 
@@ -45,6 +48,20 @@ private:
     std::string authentication_code;
     std::string refresh_token;
     std::string access_token;
+
+    static size_t read_callback(void *dest, size_t size, size_t nmemb, void *userp);
+
+    struct WriteThis {
+      const char *readptr;
+      size_t sizeleft;
+    };
+
+    struct weird_string {
+      char *ptr;
+      size_t len;
+    };
+
+    static size_t writefunc(void *ptr, size_t size, size_t nmemb, struct weird_string *s);
 };
 
 }
