@@ -2,9 +2,6 @@
 #include <curl/curl.h>
 #include <cstring>
 
-
-#include "rapidjson/document.h"
-
 // FIXME: Change these namespaces to split the frontend and backend? Maybe. Check.
 
 Optional::OAuth::OAuth(std::string oauth_uid_in, std::string redirect_uri_in)
@@ -62,10 +59,10 @@ Optional::OAuthStatus Optional::OAuth::generate_tokens() {
     CURL *curl = curl_easy_init();
     CURLcode post_result;
 	
-    if(curl && this->authentication_code.empty() == false) { // FIXME: Change to enum unauthenticated.
-        struct refresh_token_return_data refresh_token;
-
-        std::string post_data = std::string("grant_type=authorization_code")
+    if(curl && this->authorization_status != Valid) {
+        std::string post_returned_data;
+        std::string post_data =
+                std::string("grant_type=authorization_code")
                 + std::string("&refresh_token=")
                 + std::string("&access_type=offline")
                 + std::string("&code=")
@@ -78,21 +75,20 @@ Optional::OAuthStatus Optional::OAuth::generate_tokens() {
         curl_easy_setopt(curl, CURLOPT_URL, this->access_token_post_url.c_str());
         curl_easy_setopt(curl, CURLOPT_POST, 1L);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_post_callback);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &refresh_token);
-        curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post_data.c_str()); // FIXME with real data
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &post_returned_data);
+        curl_easy_setopt(curl, CURLOPT_VERBOSE, 0L); // Set to 1L for debug output.
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post_data.c_str());
  
         post_result = curl_easy_perform(curl);
-	    
+
         if(post_result != CURLE_OK) {
             this->authorization_status = Invalid;
         }
         else {
             rapidjson::Document auth_result;
-            auth_result.Parse(refresh_token.data, refresh_token.length);
+            auth_result.Parse(post_returned_data.c_str(),post_returned_data.length());
 
-            if(auth_result.HasMember("access_token") && auth_result.HasMember("refresh_token")) {
-                // FIXME: check for these existing too.
+            if(parsed_auth_result_is_valid(auth_result)) {
                 this->refresh_expiration = std::time(nullptr) + auth_result["refresh_token_expires_in"].GetInt();
                 this->access_expiration = std::time(nullptr) + auth_result["expires_in"].GetInt();
                 this->refresh_token = auth_result["refresh_token"].GetString();
@@ -111,22 +107,15 @@ Optional::OAuthStatus Optional::OAuth::generate_tokens() {
     return this->authorization_status;
 }
 
-std::string Optional::OAuth::debug()
-{
-    return this->authentication_code;
+size_t Optional::OAuth::curl_post_callback(void* contents, size_t size, size_t nmemb, void* return_data) {
+    int bytes_handled = size * nmemb;
+    static_cast<std::string*>(return_data)->append(static_cast<const char*>(contents), bytes_handled);
+    return bytes_handled;
 }
 
-size_t Optional::OAuth::curl_post_callback(void *ptr, size_t size, size_t nmemb, struct refresh_token_return_data *s)
-{
-  size_t new_len = s->length + size*nmemb;
-  s->data = static_cast<char*>(realloc(s->data, new_len+1));
-  if (s->data == NULL) {
-    fprintf(stderr, "realloc() failed\n");
-    exit(EXIT_FAILURE);
-  }
-  memcpy(s->data+s->length, ptr, size*nmemb);
-  s->data[new_len] = '\0';
-  s->length = new_len;
-
-  return size*nmemb;
+bool Optional::OAuth::parsed_auth_result_is_valid(rapidjson::Document& auth_result) {
+    return auth_result.HasMember("access_token")
+            && auth_result.HasMember("refresh_token")
+            && auth_result.HasMember("refresh_token_expires_in")
+            && auth_result.HasMember("expires_in");
 }

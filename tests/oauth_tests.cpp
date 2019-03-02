@@ -1,8 +1,11 @@
 #include "gtest/gtest.h"
 #include "oauth.h"
 
+#include "rapidjson/document.h"
+
 #include <curl/curl.h>
 #include <string>
+#include <iostream>
 
 using namespace std;
 
@@ -10,6 +13,18 @@ namespace {
 
 TEST(OAuthTests, curl_exists_and_can_be_used) {
     EXPECT_EQ(0, curl_global_init(CURL_GLOBAL_ALL));
+}
+
+TEST(OAuthTests, rapidjson_exists_and_can_be_used) {
+    string test_json = "{\"field1\": \"field one's data\", \"field2\": \"field two's data\"}";
+
+    rapidjson::Document test_document;
+    test_document.Parse(test_json.c_str(), test_json.length());
+
+    ASSERT_TRUE(test_document.HasMember("field1"));
+    ASSERT_TRUE(test_document.HasMember("field2"));
+    EXPECT_STREQ("field one's data", test_document["field1"].GetString());
+    EXPECT_STREQ("field two's data", test_document["field2"].GetString());
 }
 
 TEST(OAuthTests, can_create_oauth_object) {
@@ -50,17 +65,27 @@ TEST(OAuthTests, accept_authentication_code_handles_bad_code) {
     EXPECT_STREQ(expected_code.c_str(), oauth.get_authentication_code().c_str());
 }
 
-// There's no way to test this without legitimate credentials, so it's left as
-// a shell test for an end user to check.
-TEST(OAuthTests, DISABLED_refresh_code_is_retrieved_from_server) {
-    Optional::OAuth oauth("user_id", "https://callback_uri.test");
+// There's no way to test this without legitimate credentials, so it's an interactive
+// test, and may be disabled by prepending DISABLED_ to the test name.
+TEST(OAuthTests, /*DISABLED_*/refresh_code_is_retrieved_from_server) {
+    string uid;
+    string callback_uri;
+    string result;
 
-    const string provided_code = "https://localhost/?code=some_code";
+    cout << "Enter OAuth UID: ";
+    cin >> uid;
+    cout << "Enter callback URI: ";
+    cin >> callback_uri;
 
-//    EXPECT_TRUE(oauth.accept_authentication_code(provided_code));
-//    EXPECT_STREQ("", oauth.generate_tokens().c_str());
+    Optional::OAuth oauth(uid, callback_uri);
+
+    cout << "Go to this url, authenticate, and paste resuling address below: " << oauth.generate_authentication_url() << endl;
+    cout << ": ";
+    cin >> result;
+
+    EXPECT_TRUE(oauth.accept_authentication_code(result));
+    EXPECT_EQ(Optional::OAuthStatus::Valid, oauth.generate_tokens());
 }
-
 
 
 } // namespace

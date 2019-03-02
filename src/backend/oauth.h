@@ -4,6 +4,8 @@
 #include <string>
 #include <ctime>
 
+#include "rapidjson/document.h"
+
 namespace Optional {
 
 /**
@@ -52,14 +54,9 @@ private:
     std::time_t refresh_expiration;
     std::time_t access_expiration;
 
-    // Get rid of this abomination.
-    struct refresh_token_return_data {
-      char *data;
-      size_t length;
-    };
+    static size_t curl_post_callback(void* contents, size_t size, size_t nmemb, void* return_data);
 
-    // And fix this abomination.
-    static size_t curl_post_callback(void *ptr, size_t size, size_t nmemb, struct refresh_token_return_data *s);
+    bool parsed_auth_result_is_valid(rapidjson::Document& auth_result);
 };
 
 }
