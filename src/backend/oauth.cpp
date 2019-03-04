@@ -1,19 +1,17 @@
 #include "oauth.h"
-#include <curl/curl.h>
 #include <cstring>
 
 // FIXME: Change these namespaces to split the frontend and backend? Maybe. Check.
 
-Optional::OAuth::OAuth(std::string oauth_uid_in, std::string redirect_uri_in)
-    : authorization_status(Unauthenticated)
+Optional::OAuth::OAuth(std::string oauth_uid_in, std::string redirect_uri_in, Rest& rest_interface_in)
+    : authorization_status(OAuthStatus::Unauthenticated)
     , oauth_uid(oauth_uid_in)
     , redirect_uri(redirect_uri_in)
     , authentication_code("")
     , refresh_token("")
     , access_token("")
+    , rest_interface(rest_interface_in)
 {
-    curl_global_init(CURL_GLOBAL_ALL);
-    
     if (this->redirect_uri.empty()) {
         this->redirect_uri = "https://null_value";
     }
@@ -22,9 +20,30 @@ Optional::OAuth::OAuth(std::string oauth_uid_in, std::string redirect_uri_in)
     }
 }
 
-Optional::OAuth::~OAuth() {
-    curl_global_cleanup();
+Optional::OAuth::OAuth(const Optional::OAuth &other)
+    : authorization_status(other.authorization_status)
+    , oauth_uid(other.oauth_uid)
+    , redirect_uri(other.redirect_uri)
+    , authentication_code(other.authentication_code)
+    , refresh_token(other.refresh_token)
+    , access_token(other.access_token)
+    , refresh_expiration(other.refresh_expiration)
+    , access_expiration(other.access_expiration)
+    , rest_interface(other.rest_interface)
+{
+}
 
+Optional::OAuth &Optional::OAuth::operator=(const Optional::OAuth &other) {
+    this->authorization_status = other.authorization_status;
+    this->oauth_uid = other.oauth_uid;
+    this->redirect_uri = other.redirect_uri;
+    this->authentication_code = other.authentication_code;
+    this->refresh_token = other.refresh_token;
+    this->access_token = other.access_token;
+    this->refresh_expiration = other.refresh_expiration;
+    this->access_expiration = other.access_expiration;
+
+    return *this;
 }
 
 std::string Optional::OAuth::generate_authentication_url() {
@@ -56,11 +75,9 @@ std::string Optional::OAuth::get_authentication_code() {
 }
 
 Optional::OAuthStatus Optional::OAuth::generate_tokens() {
-    CURL *curl = curl_easy_init();
-    CURLcode post_result;
-	
-    if(curl && this->authorization_status != Valid) {
-        std::string post_returned_data;
+    bool valid_data;
+
+    if(this->authorization_status != OAuthStatus::Valid) {
         std::string post_data =
                 std::string("grant_type=authorization_code")
                 + std::string("&refresh_token=")
@@ -72,21 +89,11 @@ Optional::OAuthStatus Optional::OAuth::generate_tokens() {
                 + std::string("&redirect_uri=")
                 + this->redirect_uri;
 
-        curl_easy_setopt(curl, CURLOPT_URL, this->access_token_post_url.c_str());
-        curl_easy_setopt(curl, CURLOPT_POST, 1L);
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_post_callback);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &post_returned_data);
-        curl_easy_setopt(curl, CURLOPT_VERBOSE, 0L); // Set to 1L for debug output.
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post_data.c_str());
- 
-        post_result = curl_easy_perform(curl);
+        std::string post_return_data = this->rest_interface.post(access_token_post_url, post_data, valid_data);
 
-        if(post_result != CURLE_OK) {
-            this->authorization_status = Invalid;
-        }
-        else {
+        if(valid_data) {
             rapidjson::Document auth_result;
-            auth_result.Parse(post_returned_data.c_str(),post_returned_data.length());
+            auth_result.Parse(post_return_data.c_str(),post_return_data.length());
 
             if(parsed_auth_result_is_valid(auth_result)) {
                 this->refresh_expiration = std::time(nullptr) + auth_result["refresh_token_expires_in"].GetInt();
@@ -94,24 +101,30 @@ Optional::OAuthStatus Optional::OAuth::generate_tokens() {
                 this->refresh_token = auth_result["refresh_token"].GetString();
                 this->access_token = auth_result["access_token"].GetString();
 
-                this->authorization_status = Valid;
+                this->authorization_status = OAuthStatus::Valid;
             }
             else {
-                this->authorization_status = Invalid;
+                this->authorization_status = OAuthStatus::Invalid;
             }
         }
+        else {
+            this->authorization_status = OAuthStatus::Invalid;
+        }
 
-        curl_easy_cleanup(curl);
     }
 
     return this->authorization_status;
 }
 
-size_t Optional::OAuth::curl_post_callback(void* contents, size_t size, size_t nmemb, void* return_data) {
-    int bytes_handled = size * nmemb;
-    static_cast<std::string*>(return_data)->append(static_cast<const char*>(contents), bytes_handled);
-    return bytes_handled;
+Optional::OAuthStatus Optional::OAuth::get_status() {
+    if (this->refresh_expiration < std::time(nullptr) || this->access_expiration < std::time(nullptr)) {
+        this->authorization_status = OAuthStatus::NeedsRefresh;
+    }
+
+    return this->authorization_status;
 }
+
+
 
 bool Optional::OAuth::parsed_auth_result_is_valid(rapidjson::Document& auth_result) {
     return auth_result.HasMember("access_token")

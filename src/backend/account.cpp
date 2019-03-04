@@ -1,6 +1,26 @@
 #include "account.h"
 
-Optional::Account::Account()
-{
+#include "rapidjson/document.h"
 
+Optional::Account::Account(OAuth authorization_in, Rest& rest_interface_in, std::string account_number_in)
+    : authorization(authorization_in)
+    , rest_interface(rest_interface_in)
+    , account_number(account_number_in)
+{
+    this->account_post_resource_url.append(account_number);
 }
+
+bool Optional::Account::refresh_account()
+{
+    bool success = false;
+
+    if (this->authorization.get_status() == Valid) {
+        // Can also add 'fields=positions,orders' for more info.
+
+        std::string post_data = "";
+        //std::string header = std::string("Authorization: ") + authorization.
+    }
+
+    return success;
+}
+
