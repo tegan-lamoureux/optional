@@ -74,6 +74,16 @@ std::string Optional::OAuth::get_authentication_code() {
     return this->authentication_code;
 }
 
+std::string Optional::OAuth::get_access_token() {
+    // Check time better?
+//    if (this->authorization_status == OAuthStatus::Valid) {
+        return this->access_token;
+//    }
+//    else {
+//        return "";
+//    }
+}
+
 Optional::OAuthStatus Optional::OAuth::generate_tokens() {
     bool valid_data;
 
@@ -89,7 +99,9 @@ Optional::OAuthStatus Optional::OAuth::generate_tokens() {
                 + std::string("&redirect_uri=")
                 + this->redirect_uri;
 
-        std::string post_return_data = this->rest_interface.post(access_token_post_url, post_data, valid_data);
+        std::string post_header = "";
+
+        std::string post_return_data = this->rest_interface.post(access_token_post_url, post_header, post_data, valid_data);
 
         if(valid_data) {
             rapidjson::Document auth_result;

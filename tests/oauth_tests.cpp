@@ -78,7 +78,7 @@ TEST_F(OAuthTests, accept_authentication_code_handles_bad_code) {
 
 // There's no way to test this without legitimate credentials, so it's an interactive
 // test, and may be disabled by prepending DISABLED_ to the test name.
-TEST_F(OAuthTests, /*DISABLED_*/refresh_code_is_retrieved_from_server) {
+TEST_F(OAuthTests, DISABLED_refresh_code_is_retrieved_from_server) {
     string uid;
     string callback_uri;
     string result;

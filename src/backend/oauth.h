@@ -33,9 +33,10 @@ public:
     std::string generate_authentication_url();
     bool accept_authentication_code(std::string code);
     
-    std::string get_authentication_code();
     OAuthStatus generate_tokens();
 
+    std::string get_authentication_code();
+    std::string get_access_token();
     OAuthStatus get_status();
 
     std::string debug();

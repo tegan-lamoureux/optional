@@ -47,6 +47,7 @@ set(
 set(
     tests_sources
 
+    tests/account_tests.cpp
     tests/oauth_tests.cpp
     tests/rest_tests.cpp
 )
