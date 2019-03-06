@@ -5,6 +5,7 @@
 #include <ctime>
 
 #include "rapidjson/document.h"
+#include "rest.h"
 
 namespace Optional {
 
@@ -25,15 +26,17 @@ enum OAuthStatus {
 class OAuth
 {
 public:
-    OAuth(std::string oauth_uid_in, std::string redirect_uri_in);
-    ~OAuth();
+    OAuth(std::string oauth_uid_in, std::string redirect_uri_in, Rest& rest_interface_in);
+    OAuth(const OAuth& other);
+    OAuth& operator=(const OAuth& other);
 
     std::string generate_authentication_url();
     bool accept_authentication_code(std::string code);
     
-    std::string get_authentication_code();
     OAuthStatus generate_tokens();
 
+    std::string get_authentication_code();
+    std::string get_access_token();
     OAuthStatus get_status();
 
     std::string debug();
@@ -51,10 +54,13 @@ private:
     std::string refresh_token;
     std::string access_token;
 
+    // FIXME: incorprate these into code
     std::time_t refresh_expiration;
     std::time_t access_expiration;
 
-    static size_t curl_post_callback(void* contents, size_t size, size_t nmemb, void* return_data);
+    // This should be completley internal and not passed in. FIXME
+    Rest& rest_interface;
+
 
     bool parsed_auth_result_is_valid(rapidjson::Document& auth_result);
 };

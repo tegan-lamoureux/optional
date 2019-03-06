@@ -18,24 +18,24 @@ set(
     backend_sources
 
     # Headers
-    src/backend/oauth.h
     src/backend/account.h
+    src/backend/oauth.h
+    src/backend/rest.h
 
     # Source
-    src/backend/oauth.cpp
     src/backend/account.cpp
+    src/backend/oauth.cpp
+    src/backend/rest.cpp
 )
 
 set(
     ui_sources
 
     # Headers
-    src/backend/oauth.h
-    src/backend/account.h
+    src/ui/display.h
 
     # Sources
-    src/backend/oauth.cpp
-    src/backend/account.cpp
+    src/ui/display.cpp
 )
 
 set(
@@ -47,7 +47,9 @@ set(
 set(
     tests_sources
 
+    tests/account_tests.cpp
     tests/oauth_tests.cpp
+    tests/rest_tests.cpp
 )
 
 
@@ -89,7 +91,7 @@ include(GoogleTest)
 #################
 #### Build Config
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 add_library(
     ${backend}

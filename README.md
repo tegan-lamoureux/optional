@@ -13,10 +13,8 @@ A fast and simple c++ interface to the TD Ameritrade APIs for stock and options 
 * `cmake ../ && make`
 
 #### Dev TODO
-* get login working smoothly. 
-* write tests.
-* finalize oauth class now that login is working.
 * doxygen comments.
+* get account working.
 
 ***
 
