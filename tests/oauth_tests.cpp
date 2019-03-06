@@ -98,5 +98,10 @@ TEST_F(OAuthTests, DISABLED_refresh_code_is_retrieved_from_server) {
     EXPECT_EQ(Optional::OAuthStatus::Valid, oauth.generate_tokens());
 }
 
+TEST_F(OAuthTests, refresh_token_somethingdadsf) { // FIXME
+    Optional::OAuth oauth("user_id", "https://callback_uri.test", this->rest);
+    oauth.refresh_exists();
+}
+
 
 } // namespace

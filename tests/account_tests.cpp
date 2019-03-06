@@ -29,7 +29,7 @@ protected:
 
 // There's no way to test this without legitimate credentials, so it's an interactive
 // test, and may be disabled by prepending DISABLED_ to the test name.
-TEST_F(AccountTests, /*DISABLED_*/can_get_account_data) {
+TEST_F(AccountTests, DISABLED_can_get_account_data) {
     string uid;
     string callback_uri;
     string result;

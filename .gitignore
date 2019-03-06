@@ -1,3 +1,4 @@
+*.autosave
 *.swp
 *.o
 *.config

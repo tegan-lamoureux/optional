@@ -41,10 +41,17 @@ public:
 
     std::string debug();
 
+    /**
+     * @brief Checks if refresh token exists as local veriable, and if not, as file.
+     * @return
+     */
+    bool refresh_exists();
+
 private:
     OAuth() = delete;
 
     const std::string access_token_post_url = "https://api.tdameritrade.com/v1/oauth2/token";
+    const std::string refresh_token_file = "debug.dat"; // FIXME
 
     OAuthStatus authorization_status;
 

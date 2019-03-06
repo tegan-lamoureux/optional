@@ -1,5 +1,7 @@
 #include "oauth.h"
-#include <cstring>
+
+#include <iostream> // FIXME, remove
+#include <fstream>
 
 // FIXME: Change these namespaces to split the frontend and backend? Maybe. Check.
 
@@ -88,21 +90,34 @@ Optional::OAuthStatus Optional::OAuth::generate_tokens() {
     bool valid_data;
 
     if(this->authorization_status != OAuthStatus::Valid) {
-        std::string post_data =
-                std::string("grant_type=authorization_code")
-                + std::string("&refresh_token=")
-                + std::string("&access_type=offline")
-                + std::string("&code=")
-                + this->authentication_code
-                + std::string("&client_id=")
-                + this->oauth_uid
-                + std::string("&redirect_uri=")
-                + this->redirect_uri;
+        std::string post_data;
+
+        if (this->refresh_exists()) {
+            post_data =
+                    std::string("grant_type=refresh_token")
+                    + std::string("&refresh_token=")
+                    + this->refresh_token
+                    + std::string("&client_id=")
+                    + this->oauth_uid;
+        }
+        else {
+            post_data =
+                    std::string("grant_type=authorization_code")
+                    + std::string("&refresh_token=")
+                    + std::string("&access_type=offline")
+                    + std::string("&code=")
+                    + this->authentication_code
+                    + std::string("&client_id=")
+                    + this->oauth_uid
+                    + std::string("&redirect_uri=")
+                    + this->redirect_uri;
+        }
 
         std::string post_header = "";
 
         std::string post_return_data = this->rest_interface.post(access_token_post_url, post_header, post_data, valid_data);
 
+        // Need to parse differently here based on refresh grant type.
         if(valid_data) {
             rapidjson::Document auth_result;
             auth_result.Parse(post_return_data.c_str(),post_return_data.length());
@@ -136,7 +151,24 @@ Optional::OAuthStatus Optional::OAuth::get_status() {
     return this->authorization_status;
 }
 
+bool Optional::OAuth::refresh_exists() {
+    bool exists = false;
 
+    if (this->refresh_token.empty()) {
+        std::ifstream refresh_file(this->refresh_token_file);
+        if (refresh_file.is_open()) {
+            std::getline(refresh_file, this->refresh_token);
+            if (this->refresh_token.empty() == false) {
+                exists = true;
+            }
+        }
+    }
+    else {
+        exists = true;
+    }
+
+    return exists;
+}
 
 bool Optional::OAuth::parsed_auth_result_is_valid(rapidjson::Document& auth_result) {
     return auth_result.HasMember("access_token")
