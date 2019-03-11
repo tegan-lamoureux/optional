@@ -1,6 +1,9 @@
 #ifndef OPTIONAL_ACCOUNT_H
 #define OPTIONAL_ACCOUNT_H
 
+#include <memory>
+#include <vector>
+
 #include "oauth.h"
 #include "rest.h"
 
@@ -8,33 +11,63 @@
 
 namespace Optional {
 
-// FIXME: This can be the top level object, which contains the rest api and the oauth object. The ueer will supply
-//        credentials to here and then interact with this object alone.
 class Account
 {
 public:
-    // FIXME: Fix this, and the rest + oauth object. I don't need to make three objectgs to access my account. Streamline into one with
-    // a better hierarchy.
-    Account(OAuth& authorization_in, Rest& rest_interface_in, std::string account_number);
+    Account(std::string account_number_in, std::string oauth_uid_in);
 
     bool refresh_account();
 
-    // FIXME: populate with rest of available fields. genericize access so that
-    //        each only uses the required string and substring data name, and json
-    //        parsing is offloaded to one method (as it should be). can make recursive?
-    //        pass in a n-length list of subterms and recurse until field found?
+    // FIXME: populate with rest of available fields.
     std::string account_type();
     std::string account_id();
-    std::string round_trips();
-    std::string is_day_trader();
-    std::string is_closing_only_restricted();
-    double available_funds();
+
+    unsigned int round_trips();
+
+    bool is_day_trader();
+    bool is_closing_only_restricted();
+
+    // balances
+    double accrued_interest();
+    double available_funds_non_marginable_trade();
+    double bond_value();
+    double buying_power();
+    double cash_balance();
+    double cash_available_for_trading();
+    double cash_reciepts();
+    double day_trading_buying_power();
+    double day_trading_buying_power_call();
+    double day_trading_equity_call();
+    double equity();
+    double equity_percentage();
+    double liquidation_value();
+    double long_margin_value();
+    double long_option_market_value();
+    double long_stock_value();
+    double maintenance_call();
+    double maintenance_requirement();
+    double margin();
+    double margin_equity();
+    double money_market_fund();
+    double mutual_fund_value();
+    double reg_t_call();
+    double short_margin_value();
+    double short_option_market_value();
+    double short_stock_value();
+    double total_cash();
+    double is_in_call();
+    double pending_deposits();
+    double margin_balance();
+    double short_balance();
+    double account_value();
+
+    OAuthStatus get_authorization_status();
 
 private:
     Account() = delete;
 
-    OAuth& authorization;
-    Rest& rest_interface;
+    std::shared_ptr<Rest> rest_interface;
+    std::shared_ptr<OAuth> authorization;
 
     std::string account_number;
     std::string account_post_resource_url = "https://api.tdameritrade.com/v1/accounts/";

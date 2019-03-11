@@ -1,13 +1,12 @@
 #include "oauth.h"
 
-#include <iostream> // FIXME, remove
 #include <fstream>
+#include <algorithm>
 
 // FIXME: Change these namespaces to split the frontend and backend? Maybe. Check.
 
-Optional::OAuth::OAuth(std::string oauth_uid_in, std::string redirect_uri_in, Rest& rest_interface_in)
-    : authorization_status(OAuthStatus::Unauthenticated)
-    , oauth_uid(oauth_uid_in)
+Optional::OAuth::OAuth(std::string oauth_uid_in, std::string redirect_uri_in, std::shared_ptr<Rest> rest_interface_in)
+    : oauth_uid(oauth_uid_in)
     , redirect_uri(redirect_uri_in)
     , authentication_code("")
     , refresh_token("")
@@ -19,6 +18,11 @@ Optional::OAuth::OAuth(std::string oauth_uid_in, std::string redirect_uri_in, Re
     }
     if (this->oauth_uid.empty()) {
         this->oauth_uid = "null_value";
+    }
+
+    // Try to load refresh token from disk and generate access token.
+    if (this->load_refresh_token_from_disk() && this->refresh_token_valid()) {
+        this->authorization_status = this->generate_tokens();
     }
 }
 
@@ -77,102 +81,172 @@ std::string Optional::OAuth::get_authentication_code() {
 }
 
 std::string Optional::OAuth::get_access_token() {
-    // Check time better?
-//    if (this->authorization_status == OAuthStatus::Valid) {
-        return this->access_token;
-//    }
-//    else {
-//        return "";
-//    }
+    return this->access_token;
 }
 
 Optional::OAuthStatus Optional::OAuth::generate_tokens() {
-    bool valid_data;
+    // Skip if valid.
+    if(this->get_status() == OAuthStatus::Valid) {
+        return OAuthStatus::Valid;
+    }
 
-    if(this->authorization_status != OAuthStatus::Valid) {
-        std::string post_data;
+    // Build up post data string depending on whether we need just a new access
+    // token based on the existing refresh token or we need both a refresh and
+    // access token.
+    std::string post_data;
+    if (this->refresh_token_valid()) {
+        post_data =
+                std::string("grant_type=refresh_token")
+                + std::string("&refresh_token=")
+                + this->refresh_token
+                + std::string("&access_type=")
+                + std::string("&code=")
+                + std::string("&client_id=")
+                + this->oauth_uid
+                + std::string("&redirect_uri=");
+    }
+    else {
+        post_data =
+                std::string("grant_type=authorization_code")
+                + std::string("&refresh_token=")
+                + std::string("&access_type=offline")
+                + std::string("&code=")
+                + this->authentication_code
+                + std::string("&client_id=")
+                + this->oauth_uid
+                + std::string("&redirect_uri=")
+                + this->redirect_uri;
+    }
 
-        if (this->refresh_exists()) {
-            post_data =
-                    std::string("grant_type=refresh_token")
-                    + std::string("&refresh_token=")
-                    + this->refresh_token
-                    + std::string("&client_id=")
-                    + this->oauth_uid;
-        }
-        else {
-            post_data =
-                    std::string("grant_type=authorization_code")
-                    + std::string("&refresh_token=")
-                    + std::string("&access_type=offline")
-                    + std::string("&code=")
-                    + this->authentication_code
-                    + std::string("&client_id=")
-                    + this->oauth_uid
-                    + std::string("&redirect_uri=")
-                    + this->redirect_uri;
-        }
+    // Perform the REST query.
+    bool valid_data_from_post;
+    std::string post_return_data = this->rest_interface->post(access_token_post_url, std::string(""), post_data, valid_data_from_post);
 
-        std::string post_header = "";
+    // Parse out and handle tokens if post was successfull.
+    if(valid_data_from_post) {
+        rapidjson::Document auth_result;
+        auth_result.Parse(post_return_data.c_str(),post_return_data.length());
 
-        std::string post_return_data = this->rest_interface.post(access_token_post_url, post_header, post_data, valid_data);
-
-        // Need to parse differently here based on refresh grant type.
-        if(valid_data) {
-            rapidjson::Document auth_result;
-            auth_result.Parse(post_return_data.c_str(),post_return_data.length());
-
-            if(parsed_auth_result_is_valid(auth_result)) {
-                this->refresh_expiration = std::time(nullptr) + auth_result["refresh_token_expires_in"].GetInt();
-                this->access_expiration = std::time(nullptr) + auth_result["expires_in"].GetInt();
+        if(parsed_auth_json_is_valid(auth_result)) {
+            // If we needed a new refresh token as well, get those values too.
+            if (this->refresh_token_valid() == false) {
                 this->refresh_token = auth_result["refresh_token"].GetString();
-                this->access_token = auth_result["access_token"].GetString();
+                this->refresh_expiration = std::time(nullptr) + auth_result["refresh_token_expires_in"].GetInt();
 
-                this->authorization_status = OAuthStatus::Valid;
+                // Check to see if we have a valid refresh now (we always should)
+                // and then save it to file if it wasn't valid.
+                if (this->refresh_token_valid()) {
+                    this->save_refresh_token_to_disk();
+                }
             }
-            else {
-                this->authorization_status = OAuthStatus::Invalid;
-            }
+
+            // But always get the new access token.
+            this->access_token = auth_result["access_token"].GetString();
+            this->access_expiration = std::time(nullptr) + auth_result["expires_in"].GetInt();
+
+            this->authorization_status = OAuthStatus::Valid;
+
         }
-        else {
+        else { // POST came back incorrect.
             this->authorization_status = OAuthStatus::Invalid;
         }
-
+    }
+    else { // POST had an error.
+        this->authorization_status = OAuthStatus::Invalid;
     }
 
     return this->authorization_status;
 }
 
 Optional::OAuthStatus Optional::OAuth::get_status() {
-    if (this->refresh_expiration < std::time(nullptr) || this->access_expiration < std::time(nullptr)) {
+    if (this->refresh_token.empty() || this->access_token.empty()) {
+        this->authorization_status = OAuthStatus::Unauthenticated;
+    }
+    else if (this->refresh_token_valid() == false || this->access_token_valid() == false) {
         this->authorization_status = OAuthStatus::NeedsRefresh;
+    }
+    else {
+        this->authorization_status = OAuthStatus::Valid;
     }
 
     return this->authorization_status;
 }
 
-bool Optional::OAuth::refresh_exists() {
-    bool exists = false;
+bool Optional::OAuth::load_refresh_token_from_disk() {
+    bool loaded = false;
 
-    if (this->refresh_token.empty()) {
-        std::ifstream refresh_file(this->refresh_token_file);
-        if (refresh_file.is_open()) {
-            std::getline(refresh_file, this->refresh_token);
-            if (this->refresh_token.empty() == false) {
-                exists = true;
-            }
+    std::ifstream refresh_file(this->refresh_token_file);
+    if (refresh_file.is_open()) {
+        std::getline(refresh_file, this->refresh_token);
+
+        std::string raw_refresh_expiration = "";
+        std::getline(refresh_file, raw_refresh_expiration);
+        this->refresh_expiration = static_cast<time_t>(atol(raw_refresh_expiration.c_str()));
+
+        if (this->refresh_token.empty() == false
+                && this->refresh_expiration > 0
+                && this->refresh_expiration > std::time(nullptr))
+        {
+            // Mark as loaded and strip newlines.
+            loaded = true;
+            this->refresh_token.erase(std::remove(this->refresh_token.begin(), this->refresh_token.end(), '\n'), this->refresh_token.end());
         }
-    }
-    else {
-        exists = true;
+
+        refresh_file.close();
     }
 
-    return exists;
+    return loaded;
 }
 
-bool Optional::OAuth::parsed_auth_result_is_valid(rapidjson::Document& auth_result) {
-    return auth_result.HasMember("access_token")
+void Optional::OAuth::save_refresh_token_to_disk() {
+    std::ofstream refresh_file(this->refresh_token_file);
+    if (refresh_file.is_open()) {
+        refresh_file << this->refresh_token << std::endl;
+        refresh_file << this->refresh_expiration << std::endl;
+        refresh_file.close();
+    }
+}
+
+bool Optional::OAuth::refresh_token_valid() {
+    bool valid = false;
+
+    // Check if non-null and within expiration.
+    if (this->refresh_token.empty() == false &&
+            this->refresh_expiration > std::time(nullptr))
+    {
+        valid = true;
+    }
+
+    return valid;
+}
+
+bool Optional::OAuth::access_token_valid() {
+    bool valid = false;
+
+    // Check if refresh is valid, and also if non-empty and within expiration.
+    if (this->refresh_token_valid()
+            && this->access_token.empty() == false
+            && this->access_expiration > std::time(nullptr))
+    {
+        valid = true;
+    }
+
+    return valid;
+}
+
+bool Optional::OAuth::parsed_auth_json_is_valid(rapidjson::Document& auth_result) {
+    bool valid_refresh_grant_json =
+            auth_result.HasMember("access_token")
+            && auth_result.HasMember("expires_in")
+            && auth_result.HasMember("token_type")
+            && auth_result.HasMember("refresh_token") == false;
+
+    bool valid_token_grant_json =
+            auth_result.HasMember("access_token")
             && auth_result.HasMember("refresh_token")
+            && auth_result.HasMember("token_type")
             && auth_result.HasMember("refresh_token_expires_in")
             && auth_result.HasMember("expires_in");
+
+    return valid_refresh_grant_json || valid_token_grant_json;
 }
