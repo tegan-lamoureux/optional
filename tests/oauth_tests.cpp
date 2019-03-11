@@ -7,6 +7,7 @@
 #include <curl/curl.h>
 #include <string>
 #include <iostream>
+#include <memory>
 
 using namespace std;
 
@@ -22,7 +23,7 @@ protected:
 
     }
 
-    Optional::Rest rest;
+    shared_ptr<Optional::Rest> rest = shared_ptr<Optional::Rest>(new Optional::Rest());
 };
 
 
@@ -78,15 +79,13 @@ TEST_F(OAuthTests, accept_authentication_code_handles_bad_code) {
 
 // There's no way to test this without legitimate credentials, so it's an interactive
 // test, and may be disabled by prepending DISABLED_ to the test name.
-TEST_F(OAuthTests, DISABLED_refresh_code_is_retrieved_from_server) {
+TEST_F(OAuthTests, DISABLED_generate_tokens_gets_codes_INTEGRATION) {
     string uid;
-    string callback_uri;
+    string callback_uri = "https://localhost";
     string result;
 
     cout << "Enter OAuth UID: ";
     cin >> uid;
-    cout << "Enter callback URI: ";
-    cin >> callback_uri;
 
     Optional::OAuth oauth(uid, callback_uri, this->rest);
 

@@ -8,13 +8,20 @@
 #include <curl/curl.h>
 #include <string>
 #include <iostream>
+#include <memory>
 
 using namespace std;
 
 namespace {
 
+shared_ptr<Optional::Account> account;
+
 class AccountTests : public testing::Test {
 protected:
+    AccountTests() {
+
+    }
+
     virtual void SetUp() {
 
     }
@@ -22,39 +29,67 @@ protected:
     virtual void TearDown() {
 
     }
-
-    Optional::Rest rest;
 };
 
 
 // There's no way to test this without legitimate credentials, so it's an interactive
 // test, and may be disabled by prepending DISABLED_ to the test name.
-TEST_F(AccountTests, /*DISABLED_*/can_get_account_data) {
+TEST_F(AccountTests, can_create_account_and_get_details) {
     string uid;
-    string callback_uri;
-    string result;
     string account_number;
 
     cout << "Enter OAuth UID: ";
     cin >> uid;
-    cout << "Enter callback URI: ";
-    cin >> callback_uri;
     cout << "Enter account #: ";
     cin >> account_number;
 
+    account = shared_ptr<Optional::Account>(new Optional::Account(account_number, uid));
 
-    Optional::OAuth oauth(uid, callback_uri, this->rest);
-
-    cout << "Go to this url, authenticate, and paste resuling address below: " << oauth.generate_authentication_url() << endl;
-    cout << ": ";
-    cin >> result;
-
-    ASSERT_TRUE(oauth.accept_authentication_code(result));
-    ASSERT_EQ(Optional::OAuthStatus::Valid, oauth.generate_tokens());
-
-    Optional::Account account(oauth, this->rest, account_number);
-
-    ASSERT_TRUE(account.refresh_account());
+    // Check if can get account and refresh value.
+    ASSERT_EQ(Optional::OAuthStatus::Valid, account->get_authorization_status());
+    ASSERT_TRUE(account->refresh_account());
 }
 
+// NOTE: This test requires legitimate credentials to pass.
+TEST_F(AccountTests, can_get_account_id) {
+    char* expected_account_number = "<asd>";
+
+    ASSERT_EQ(Optional::OAuthStatus::Valid, account->get_authorization_status());
+    ASSERT_STREQ(expected_account_number, account->account_id().c_str());
 }
+
+// NOTE: This test requires legitimate credentials to pass.
+TEST_F(AccountTests, can_get_account_type) {
+    char* expected_account_type = "<asd>";
+
+    ASSERT_EQ(Optional::OAuthStatus::Valid, account->get_authorization_status());
+    ASSERT_STREQ(expected_account_type, account->account_type().c_str());
+}
+
+// FIXME: Add rest of account tests here.
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,3 +1,4 @@
+*.autosave
 *.swp
 *.o
 *.config
@@ -6,6 +7,7 @@
 *.files
 *.includes
 *.pem
+*.dat
 build/
 optional
 notes
