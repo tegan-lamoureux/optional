@@ -19,47 +19,50 @@ public:
     bool refresh_account();
 
     // FIXME: populate with rest of available fields.
-    std::string account_type();
     std::string account_id();
+    std::string account_type();
 
     unsigned int round_trips();
 
     bool is_day_trader();
     bool is_closing_only_restricted();
 
-    // balances
-    double accrued_interest();
-    double available_funds_non_marginable_trade();
-    double bond_value();
-    double buying_power();
-    double cash_balance();
-    double cash_available_for_trading();
-    double cash_reciepts();
-    double day_trading_buying_power();
-    double day_trading_buying_power_call();
-    double day_trading_equity_call();
-    double equity();
-    double equity_percentage();
-    double liquidation_value();
-    double long_margin_value();
-    double long_option_market_value();
-    double long_stock_value();
-    double maintenance_call();
-    double maintenance_requirement();
-    double margin();
-    double margin_equity();
-    double money_market_fund();
-    double mutual_fund_value();
-    double reg_t_call();
-    double short_margin_value();
-    double short_option_market_value();
-    double short_stock_value();
-    double total_cash();
-    double is_in_call();
-    double pending_deposits();
-    double margin_balance();
-    double short_balance();
-    double account_value();
+    // Current Balances
+    double current_accrued_interest();
+    double current_available_funds_non_marginable_trade();
+    double current_bond_value();
+    double current_buying_power();
+    double current_cash_balance();
+    double current_cash_available_for_trading();
+    double current_cash_reciepts();
+    double current_day_trading_buying_power();
+    double current_day_trading_buying_power_call();
+    double current_day_trading_equity_call();
+    double current_equity();
+    double current_equity_percentage();
+    double current_liquidation_value();
+    double current_long_margin_value();
+    double current_long_option_market_value();
+    double current_long_stock_value();
+    double current_maintenance_call();
+    double current_maintenance_requirement();
+    double current_margin();
+    double current_margin_equity();
+    double current_money_market_fund();
+    double current_mutual_fund_value();
+    double current_reg_t_call();
+    double current_short_margin_value();
+    double current_short_option_market_value();
+    double current_short_stock_value();
+    double current_total_cash();
+    double current_is_in_call();
+    double current_unsettled_cash();
+    double current_pending_deposits();
+    double current_margin_balance();
+    double current_short_balance();
+    double current_account_value();
+
+
 
     OAuthStatus get_authorization_status();
 
@@ -73,6 +76,9 @@ private:
     std::string account_post_resource_url = "https://api.tdameritrade.com/v1/accounts/";
 
     rapidjson::Document account_details;
+
+    rapidjson::Value& parse_json_field(std::string name, rapidjson::Document& to_parse);
+    rapidjson::Value& parse_json_field(std::string name, rapidjson::Value& to_parse);
 };
 
 }

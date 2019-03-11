@@ -29,6 +29,8 @@ protected:
     virtual void TearDown() {
 
     }
+
+    const double allowable_error = 0.01;
 };
 
 
@@ -51,23 +53,58 @@ TEST_F(AccountTests, can_create_account_and_get_details) {
 }
 
 // NOTE: This test requires legitimate credentials to pass.
-TEST_F(AccountTests, can_get_account_id) {
-    char* expected_account_number = "<asd>";
+TEST_F(AccountTests, DISABLED_can_get_account_details) {
 
     ASSERT_EQ(Optional::OAuthStatus::Valid, account->get_authorization_status());
-    ASSERT_STREQ(expected_account_number, account->account_id().c_str());
+    ASSERT_TRUE(account->refresh_account());
+
+    //***************************************************************************************
+    //** You'll need to comment/uncomment desired tests and fill in expected values to check.
+
+    // Basic account info.
+    EXPECT_STREQ("expected value", account->account_id().c_str());
+    EXPECT_STREQ("expected value", account->account_type().c_str());
+
+    // Day trading metrics.
+    EXPECT_EQ(0, account->round_trips());
+    EXPECT_EQ(false, account->is_day_trader());
+    EXPECT_EQ(false, account->is_closing_only_restricted());
+
+    // Current Balances.
+    EXPECT_NEAR(0.0, account->current_accrued_interest(), this->allowable_error);
+    EXPECT_NEAR(0.0, account->current_available_funds_non_marginable_trade(), this->allowable_error);
+    EXPECT_NEAR(0.0, account->current_bond_value(), this->allowable_error);
+    EXPECT_NEAR(0.0, account->current_buying_power(), this->allowable_error);
+    EXPECT_NEAR(0.0, account->current_cash_balance(), this->allowable_error);
+    EXPECT_NEAR(0.0, account->current_cash_available_for_trading(), this->allowable_error);
+    EXPECT_NEAR(0.0, account->current_cash_reciepts(), this->allowable_error);
+    EXPECT_NEAR(0.0, account->current_day_trading_buying_power(), this->allowable_error);
+    EXPECT_NEAR(0.0, account->current_day_trading_buying_power_call(), this->allowable_error);
+    EXPECT_NEAR(0.0, account->current_day_trading_equity_call(), this->allowable_error);
+    EXPECT_NEAR(0.0, account->current_equity(), this->allowable_error);
+    EXPECT_NEAR(0.0, account->current_equity_percentage(), this->allowable_error);
+    EXPECT_NEAR(0.0, account->current_liquidation_value(), this->allowable_error);
+    EXPECT_NEAR(0.0, account->current_long_margin_value(), this->allowable_error);
+    EXPECT_NEAR(0.0, account->current_long_option_market_value(), this->allowable_error);
+    EXPECT_NEAR(0.0, account->current_long_stock_value(), this->allowable_error);
+    EXPECT_NEAR(0.0, account->current_maintenance_call(), this->allowable_error);
+    EXPECT_NEAR(0.0, account->current_maintenance_requirement(), this->allowable_error);
+    EXPECT_NEAR(0.0, account->current_margin(), this->allowable_error);
+    EXPECT_NEAR(0.0, account->current_margin_equity(), this->allowable_error);
+    EXPECT_NEAR(0.0, account->current_money_market_fund(), this->allowable_error);
+    EXPECT_NEAR(0.0, account->current_mutual_fund_value(), this->allowable_error);
+    EXPECT_NEAR(0.0, account->current_reg_t_call(), this->allowable_error);
+    EXPECT_NEAR(0.0, account->current_short_margin_value(), this->allowable_error);
+    EXPECT_NEAR(0.0, account->current_short_option_market_value(), this->allowable_error);
+    EXPECT_NEAR(0.0, account->current_short_stock_value(), this->allowable_error);
+    EXPECT_NEAR(0.0, account->current_total_cash(), this->allowable_error);
+    EXPECT_NEAR(0.0, account->current_is_in_call(), this->allowable_error);
+    EXPECT_NEAR(0.0, account->current_unsettled_cash(), this->allowable_error);
+    EXPECT_NEAR(0.0, account->current_pending_deposits(), this->allowable_error);
+    EXPECT_NEAR(0.0, account->current_margin_balance(), this->allowable_error);
+    EXPECT_NEAR(0.0, account->current_short_balance(), this->allowable_error);
+    EXPECT_NEAR(0.0, account->current_account_value(), this->allowable_error);
 }
-
-// NOTE: This test requires legitimate credentials to pass.
-TEST_F(AccountTests, can_get_account_type) {
-    char* expected_account_type = "<asd>";
-
-    ASSERT_EQ(Optional::OAuthStatus::Valid, account->get_authorization_status());
-    ASSERT_STREQ(expected_account_type, account->account_type().c_str());
-}
-
-// FIXME: Add rest of account tests here.
-
 
 
 }
