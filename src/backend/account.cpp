@@ -519,6 +519,449 @@ double Optional::Account::current_account_value() {
     }
 }
 
+
+
+/**
+ * Initial Balance section.
+ */
+
+double Optional::Account::initial_accrued_interest() {
+    try {
+        rapidjson::Value& account = this->parse_json_field("securitiesAccount", this->account_details);
+        rapidjson::Value& data = this->parse_json_field("initialBalances", account);
+        rapidjson::Value& balance = this->parse_json_field("accruedInterest", data);
+
+        return balance.GetDouble();
+    }
+    catch (...) {
+        return 0.0;
+    }
+}
+
+double Optional::Account::initial_available_funds_non_marginable_trade() {
+    try {
+        rapidjson::Value& account = this->parse_json_field("securitiesAccount", this->account_details);
+        rapidjson::Value& data = this->parse_json_field("initialBalances", account);
+        rapidjson::Value& balance = this->parse_json_field("availableFundsNonMarginableTrade", data);
+
+        return balance.GetDouble();
+    }
+    catch (...) {
+        return 0.0;
+    }
+}
+
+double Optional::Account::initial_bond_value() {
+    try {
+        rapidjson::Value& account = this->parse_json_field("securitiesAccount", this->account_details);
+        rapidjson::Value& data = this->parse_json_field("initialBalances", account);
+        rapidjson::Value& balance = this->parse_json_field("bondValue", data);
+
+        return balance.GetDouble();
+    }
+    catch (...) {
+        return 0.0;
+    }
+}
+
+double Optional::Account::initial_buying_power() {
+    try {
+        rapidjson::Value& account = this->parse_json_field("securitiesAccount", this->account_details);
+        rapidjson::Value& data = this->parse_json_field("initialBalances", account);
+        rapidjson::Value& balance = this->parse_json_field("buyingPower", data);
+
+        return balance.GetDouble();
+    }
+    catch (...) {
+        return 0.0;
+    }
+}
+
+double Optional::Account::initial_cash_balance() {
+    try {
+        rapidjson::Value& account = this->parse_json_field("securitiesAccount", this->account_details);
+        rapidjson::Value& data = this->parse_json_field("initialBalances", account);
+        rapidjson::Value& balance = this->parse_json_field("cashBalance", data);
+
+        return balance.GetDouble();
+    }
+    catch (...) {
+        return 0.0;
+    }
+}
+
+double Optional::Account::initial_cash_available_for_trading() {
+    try {
+        rapidjson::Value& account = this->parse_json_field("securitiesAccount", this->account_details);
+        rapidjson::Value& data = this->parse_json_field("initialBalances", account);
+        rapidjson::Value& balance = this->parse_json_field("cashAvailableForTrading", data);
+
+        return balance.GetDouble();
+    }
+    catch (...) {
+        return 0.0;
+    }
+}
+
+double Optional::Account::initial_cash_reciepts() {
+    try {
+        rapidjson::Value& account = this->parse_json_field("securitiesAccount", this->account_details);
+        rapidjson::Value& data = this->parse_json_field("initialBalances", account);
+        rapidjson::Value& balance = this->parse_json_field("cashReceipts", data);
+
+        return balance.GetDouble();
+    }
+    catch (...) {
+        return 0.0;
+    }
+}
+
+double Optional::Account::initial_day_trading_buying_power() {
+    try {
+        rapidjson::Value& account = this->parse_json_field("securitiesAccount", this->account_details);
+        rapidjson::Value& data = this->parse_json_field("initialBalances", account);
+        rapidjson::Value& balance = this->parse_json_field("dayTradingBuyingPower", data);
+
+        return balance.GetDouble();
+    }
+    catch (...) {
+        return 0.0;
+    }
+}
+
+double Optional::Account::initial_day_trading_buying_power_call() {
+    try {
+        rapidjson::Value& account = this->parse_json_field("securitiesAccount", this->account_details);
+        rapidjson::Value& data = this->parse_json_field("initialBalances", account);
+        rapidjson::Value& balance = this->parse_json_field("dayTradingBuyingPowerCall", data);
+
+        return balance.GetDouble();
+    }
+    catch (...) {
+        return 0.0;
+    }
+}
+
+double Optional::Account::initial_day_trading_equity_call() {
+    try {
+        rapidjson::Value& account = this->parse_json_field("securitiesAccount", this->account_details);
+        rapidjson::Value& data = this->parse_json_field("initialBalances", account);
+        rapidjson::Value& balance = this->parse_json_field("dayTradingEquityCall", data);
+
+        return balance.GetDouble();
+    }
+    catch (...) {
+        return 0.0;
+    }
+}
+
+double Optional::Account::initial_equity() {
+    try {
+        rapidjson::Value& account = this->parse_json_field("securitiesAccount", this->account_details);
+        rapidjson::Value& data = this->parse_json_field("initialBalances", account);
+        rapidjson::Value& balance = this->parse_json_field("equity", data);
+
+        return balance.GetDouble();
+    }
+    catch (...) {
+        return 0.0;
+    }
+}
+
+double Optional::Account::initial_equity_percentage() {
+    try {
+        rapidjson::Value& account = this->parse_json_field("securitiesAccount", this->account_details);
+        rapidjson::Value& data = this->parse_json_field("initialBalances", account);
+        rapidjson::Value& balance = this->parse_json_field("equityPercentage", data);
+
+        return balance.GetDouble();
+    }
+    catch (...) {
+        return 0.0;
+    }
+}
+
+double Optional::Account::initial_liquidation_value() {
+    try {
+        rapidjson::Value& account = this->parse_json_field("securitiesAccount", this->account_details);
+        rapidjson::Value& data = this->parse_json_field("initialBalances", account);
+        rapidjson::Value& balance = this->parse_json_field("liquidationValue", data);
+
+        return balance.GetDouble();
+    }
+    catch (...) {
+        return 0.0;
+    }
+}
+
+double Optional::Account::initial_long_margin_value() {
+    try {
+        rapidjson::Value& account = this->parse_json_field("securitiesAccount", this->account_details);
+        rapidjson::Value& data = this->parse_json_field("initialBalances", account);
+        rapidjson::Value& balance = this->parse_json_field("longMarginValue", data);
+
+        return balance.GetDouble();
+    }
+    catch (...) {
+        return 0.0;
+    }
+}
+
+double Optional::Account::initial_long_option_market_value() {
+    try {
+        rapidjson::Value& account = this->parse_json_field("securitiesAccount", this->account_details);
+        rapidjson::Value& data = this->parse_json_field("initialBalances", account);
+        rapidjson::Value& balance = this->parse_json_field("longOptionMarketValue", data);
+
+        return balance.GetDouble();
+    }
+    catch (...) {
+        return 0.0;
+    }
+}
+
+double Optional::Account::initial_long_stock_value() {
+    try {
+        rapidjson::Value& account = this->parse_json_field("securitiesAccount", this->account_details);
+        rapidjson::Value& data = this->parse_json_field("initialBalances", account);
+        rapidjson::Value& balance = this->parse_json_field("longStockValue", data);
+
+        return balance.GetDouble();
+    }
+    catch (...) {
+        return 0.0;
+    }
+}
+
+double Optional::Account::initial_maintenance_call() {
+    try {
+        rapidjson::Value& account = this->parse_json_field("securitiesAccount", this->account_details);
+        rapidjson::Value& data = this->parse_json_field("initialBalances", account);
+        rapidjson::Value& balance = this->parse_json_field("maintenanceCall", data);
+
+        return balance.GetDouble();
+    }
+    catch (...) {
+        return 0.0;
+    }
+}
+
+double Optional::Account::initial_maintenance_requirement() {
+    try {
+        rapidjson::Value& account = this->parse_json_field("securitiesAccount", this->account_details);
+        rapidjson::Value& data = this->parse_json_field("initialBalances", account);
+        rapidjson::Value& balance = this->parse_json_field("maintenanceRequirement", data);
+
+        return balance.GetDouble();
+    }
+    catch (...) {
+        return 0.0;
+    }
+}
+
+double Optional::Account::initial_margin() {
+    try {
+        rapidjson::Value& account = this->parse_json_field("securitiesAccount", this->account_details);
+        rapidjson::Value& data = this->parse_json_field("initialBalances", account);
+        rapidjson::Value& balance = this->parse_json_field("margin", data);
+
+        return balance.GetDouble();
+    }
+    catch (...) {
+        return 0.0;
+    }
+}
+
+double Optional::Account::initial_margin_equity() {
+    try {
+        rapidjson::Value& account = this->parse_json_field("securitiesAccount", this->account_details);
+        rapidjson::Value& data = this->parse_json_field("initialBalances", account);
+        rapidjson::Value& balance = this->parse_json_field("marginEquity", data);
+
+        return balance.GetDouble();
+    }
+    catch (...) {
+        return 0.0;
+    }
+}
+
+double Optional::Account::initial_money_market_fund() {
+    try {
+        rapidjson::Value& account = this->parse_json_field("securitiesAccount", this->account_details);
+        rapidjson::Value& data = this->parse_json_field("initialBalances", account);
+        rapidjson::Value& balance = this->parse_json_field("moneyMarketFund", data);
+
+        return balance.GetDouble();
+    }
+    catch (...) {
+        return 0.0;
+    }
+}
+
+double Optional::Account::initial_mutual_fund_value() {
+    try {
+        rapidjson::Value& account = this->parse_json_field("securitiesAccount", this->account_details);
+        rapidjson::Value& data = this->parse_json_field("initialBalances", account);
+        rapidjson::Value& balance = this->parse_json_field("mutualFundValue", data);
+
+        return balance.GetDouble();
+    }
+    catch (...) {
+        return 0.0;
+    }
+}
+
+double Optional::Account::initial_reg_t_call() {
+    try {
+        rapidjson::Value& account = this->parse_json_field("securitiesAccount", this->account_details);
+        rapidjson::Value& data = this->parse_json_field("initialBalances", account);
+        rapidjson::Value& balance = this->parse_json_field("regTCall", data);
+
+        return balance.GetDouble();
+    }
+    catch (...) {
+        return 0.0;
+    }
+}
+
+double Optional::Account::initial_short_margin_value() {
+    try {
+        rapidjson::Value& account = this->parse_json_field("securitiesAccount", this->account_details);
+        rapidjson::Value& data = this->parse_json_field("initialBalances", account);
+        rapidjson::Value& balance = this->parse_json_field("shortMarginValue", data);
+
+        return balance.GetDouble();
+    }
+    catch (...) {
+        return 0.0;
+    }
+}
+
+double Optional::Account::initial_short_option_market_value() {
+    try {
+        rapidjson::Value& account = this->parse_json_field("securitiesAccount", this->account_details);
+        rapidjson::Value& data = this->parse_json_field("initialBalances", account);
+        rapidjson::Value& balance = this->parse_json_field("shortOptionMarketValue", data);
+
+        return balance.GetDouble();
+    }
+    catch (...) {
+        return 0.0;
+    }
+}
+
+double Optional::Account::initial_short_stock_value() {
+    try {
+        rapidjson::Value& account = this->parse_json_field("securitiesAccount", this->account_details);
+        rapidjson::Value& data = this->parse_json_field("initialBalances", account);
+        rapidjson::Value& balance = this->parse_json_field("shortStockValue", data);
+
+        return balance.GetDouble();
+    }
+    catch (...) {
+        return 0.0;
+    }
+}
+
+double Optional::Account::initial_total_cash() {
+    try {
+        rapidjson::Value& account = this->parse_json_field("securitiesAccount", this->account_details);
+        rapidjson::Value& data = this->parse_json_field("initialBalances", account);
+        rapidjson::Value& balance = this->parse_json_field("totalCash", data);
+
+        return balance.GetDouble();
+    }
+    catch (...) {
+        return 0.0;
+    }
+}
+
+double Optional::Account::initial_is_in_call() {
+    try {
+        rapidjson::Value& account = this->parse_json_field("securitiesAccount", this->account_details);
+        rapidjson::Value& data = this->parse_json_field("initialBalances", account);
+        rapidjson::Value& balance = this->parse_json_field("isInCall", data);
+
+        return balance.GetDouble();
+    }
+    catch (...) {
+        return 0.0;
+    }
+}
+
+double Optional::Account::initial_unsettled_cash() {
+    try {
+        rapidjson::Value& account = this->parse_json_field("securitiesAccount", this->account_details);
+        rapidjson::Value& data = this->parse_json_field("initialBalances", account);
+        rapidjson::Value& balance = this->parse_json_field("unsettledCash", data);
+
+        return balance.GetDouble();
+    }
+    catch (...) {
+        return 0.0;
+    }
+}
+
+double Optional::Account::initial_pending_deposits() {
+    try {
+        rapidjson::Value& account = this->parse_json_field("securitiesAccount", this->account_details);
+        rapidjson::Value& data = this->parse_json_field("initialBalances", account);
+        rapidjson::Value& balance = this->parse_json_field("pendingDeposits", data);
+
+        return balance.GetDouble();
+    }
+    catch (...) {
+        return 0.0;
+    }
+}
+
+double Optional::Account::initial_margin_balance() {
+    try {
+        rapidjson::Value& account = this->parse_json_field("securitiesAccount", this->account_details);
+        rapidjson::Value& data = this->parse_json_field("initialBalances", account);
+        rapidjson::Value& balance = this->parse_json_field("marginBalance", data);
+
+        return balance.GetDouble();
+    }
+    catch (...) {
+        return 0.0;
+    }
+}
+
+double Optional::Account::initial_short_balance() {
+    try {
+        rapidjson::Value& account = this->parse_json_field("securitiesAccount", this->account_details);
+        rapidjson::Value& data = this->parse_json_field("initialBalances", account);
+        rapidjson::Value& balance = this->parse_json_field("shortBalance", data);
+
+        return balance.GetDouble();
+    }
+    catch (...) {
+        return 0.0;
+    }
+}
+
+double Optional::Account::initial_account_value() {
+    try {
+        rapidjson::Value& account = this->parse_json_field("securitiesAccount", this->account_details);
+        rapidjson::Value& data = this->parse_json_field("initialBalances", account);
+        rapidjson::Value& balance = this->parse_json_field("accountValue", data);
+
+        return balance.GetDouble();
+    }
+    catch (...) {
+        return 0.0;
+    }
+}
+
+
+
+
+
+
+
+
+
 Optional::OAuthStatus Optional::Account::get_authorization_status() {
     return this->authorization->get_status();
 }
