@@ -954,16 +954,12 @@ double Optional::Account::initial_account_value() {
     }
 }
 
-
-
-
-
-
-
-
-
 Optional::OAuthStatus Optional::Account::get_authorization_status() {
     return this->authorization->get_status();
+}
+
+std::shared_ptr<Optional::Rest> Optional::Account::get_rest_interface() {
+    return this->rest_interface;
 }
 
 rapidjson::Value& Optional::Account::parse_json_field(std::string name, rapidjson::Document& to_parse) {

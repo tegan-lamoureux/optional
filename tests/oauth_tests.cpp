@@ -79,7 +79,7 @@ TEST_F(OAuthTests, accept_authentication_code_handles_bad_code) {
 
 // There's no way to test this without legitimate credentials, so it's an interactive
 // test, and may be disabled by prepending DISABLED_ to the test name.
-TEST_F(OAuthTests, DISABLED_generate_tokens_gets_codes_INTEGRATION) {
+TEST_F(OAuthTests, generate_tokens_gets_codes_INTEGRATION) {
     string uid;
     string callback_uri = "https://localhost";
     string result;

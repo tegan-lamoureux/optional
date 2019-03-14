@@ -6,7 +6,6 @@ set(target_name "optional")
 
 # Target Names
 set(backend "${target_name}")
-set(ui "${target_name}_ui")
 set(app "${target_name}_app")
 set(tests "${target_name}_unit_tests")
 
@@ -29,19 +28,14 @@ set(
 )
 
 set(
-    ui_sources
+    app_sources
 
     # Headers
-    src/ui/display.h
+    src/app/display.h
 
     # Sources
-    src/ui/display.cpp
-)
-
-set(
-    app_sources
-    
-    src/main.cpp
+    src/app/display.cpp
+    src/app/main.cpp
 )
 
 set(
@@ -100,13 +94,6 @@ add_library(
     ${backend_sources}
 )
 
-add_library(
-    ${ui}
-    STATIC
-
-    ${ui_sources}
-)
-
 add_executable(
     ${app}
 
@@ -117,7 +104,6 @@ target_include_directories(
 	${app} PUBLIC
 
 	${CMAKE_SOURCE_DIR}/src/backend
-	${CMAKE_SOURCE_DIR}/src/ui
 )
 
 target_link_libraries(

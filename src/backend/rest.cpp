@@ -89,6 +89,24 @@ std::string Optional::Rest::get(std::string url, std::string header, bool& valid
     return get_returned_data;
 }
 
+std::string Optional::Rest::url_encoding(std::string input) {
+    CURL *curl = curl_easy_init();
+    std::string encoded_string = "";
+
+    if(curl) {
+      char* encoded_buffer = curl_easy_escape(curl, input.c_str(), input.length());
+
+      if(encoded_buffer) {
+        encoded_string = std::string(encoded_buffer);
+        curl_free(encoded_buffer);
+      }
+
+      curl_easy_cleanup(curl);
+    }
+
+    return encoded_string;
+}
+
 
 size_t Optional::Rest::curl_callback(void* contents, size_t size, size_t nmemb, void* return_data) {
     int bytes_handled = size * nmemb;

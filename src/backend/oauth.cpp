@@ -130,7 +130,8 @@ Optional::OAuthStatus Optional::OAuth::generate_tokens() {
         if(parsed_auth_json_is_valid(auth_result)) {
             // If we needed a new refresh token as well, get those values too.
             if (this->refresh_token_valid() == false) {
-                this->refresh_token = auth_result["refresh_token"].GetString();
+                // Convert refresh token to url encoded version, so api doesn't get mad.
+                this->refresh_token = this->rest_interface->url_encoding(auth_result["refresh_token"].GetString());
                 this->refresh_expiration = std::time(nullptr) + auth_result["refresh_token_expires_in"].GetInt();
 
                 // Check to see if we have a valid refresh now (we always should)

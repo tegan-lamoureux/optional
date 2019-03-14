@@ -100,6 +100,7 @@ public:
 
 
     OAuthStatus get_authorization_status();
+    std::shared_ptr<Rest> get_rest_interface();
 
 private:
     Account() = delete;

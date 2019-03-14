@@ -2,31 +2,30 @@
 #define OPTIONAL_DISPLAY_H
 
 #include <ncurses.h>
+#include <unordered_map>
+
+#include "account.h"
 
 namespace Optional {
 
 class Display
 {
 public:
-    Display();
+    Display(Account& account_in);
     ~Display();
 
     void run_loop();
 
 private:
-    int num;
-    int keypress;
+    Account& account;
+    std::unordered_map<std::string, WINDOW*> windows;
 
-    // TODO: These need to be in a structure. List/Vect?
-    // Also I need to abstract a window out to a separate class.
-    WINDOW* window_1;
-    WINDOW* window_2;
-    WINDOW* window_3;
-    WINDOW* window_4;
+    void initialize_layout_large_top_three_bottom();
 
     WINDOW *create_newwin(int height, int width, int starty, int startx);
     void destroy_win(WINDOW *local_win);
     void set_window(int window_number);
+
 };
 
 }

@@ -41,6 +41,7 @@ TEST_F(AccountTests, can_create_account_and_get_details) {
     string account_number;
 
     cout << "Enter OAuth UID: ";
+
     cin >> uid;
     cout << "Enter account #: ";
     cin >> account_number;
