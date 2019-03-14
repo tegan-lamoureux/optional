@@ -21,18 +21,16 @@ void Optional::Display::run_loop() {
     int keypress;
 
     // Be nice.
-//    printw("   Hello. Welcome to Optional.");
-//    refresh();
-//    attron(COLOR_PAIR(2));
-//    printw(" Status: ");
+    addstr("   Hello, Welcome to Optional -- Status: ");
     if (this->account.get_authorization_status() == OAuthStatus::Valid) {
         attron(COLOR_PAIR(1));
-        printw(" [Connected to Brokerage Account]");
+        addstr("[Connected to Brokerage Account]");
         attroff(COLOR_PAIR(1));
     }
     else {
         attron(COLOR_PAIR(3));
-        printw(" [Not Connected!]");
+        addstr("[Not Connected]");
+        attroff(COLOR_PAIR(3));
     }
     refresh();
 
@@ -109,6 +107,7 @@ void Optional::Display::initialize_layout_large_top_three_bottom() {
     this->windows.emplace("bottom right", this->create_newwin(w_bottom_right_height, w_bottom_right_width, w_bottom_right_starty, w_bottom_right_startx));
     wrefresh(this->windows["bottom right"]);
 
+    refresh();
     // Example printing in window.
 //    mvwprintw(window_4, 1, 1, "Cash & Sweep: xxx.xx");
 //    mvwprintw(window_4, 2, 1, "Buying Power: xxx.xx");
