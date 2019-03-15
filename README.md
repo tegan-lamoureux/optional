@@ -2,18 +2,6 @@
 
 A fast and simple c++ interface to the TD Ameritrade APIs for stock and options trading.
 
-#### Build Requirements
-* curl
-* ncurses
-
-#### Building
-* Clone and cd into `optional`.
-* `mkdir build && cd build`
-* `cmake ../ && make`
-
-#### Dev Notes
-* doxygen comments.
-
 ***
 
 #### What this is. (It's in progress.)
@@ -27,6 +15,22 @@ Two main components:
   * Sell and buy options/stock through single line input.
 
 Backend implemented as a static library. Main app links against it, as an example of how an automated trading program could do the same.
+
+***
+
+#### Build Requirements
+* curl
+* ncurses
+
+#### Building
+* Clone and cd into `optional`.
+* `mkdir build && cd build`
+* `cmake ../ && make`
+
+#### Dev Notes
+* doxygen comments.
+
+***
 
 #### More Info
 User guide (emtpy, tbd) [is on the wiki](https://github.com/tegan-lamoureux/optional/wiki).
