@@ -26,6 +26,7 @@ private:
     void destroy_win(WINDOW *local_win);
     void set_window(int window_number);
 
+    void refresh_balances();
 };
 
 }

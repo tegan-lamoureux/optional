@@ -20,6 +20,12 @@ Optional::Display::~Display() {
 void Optional::Display::run_loop() {
     int keypress;
 
+    // Example printing in window.
+//    mvwprintw(window_4, 1, 1, "Cash & Sweep: xxx.xx");
+//    mvwprintw(window_4, 2, 1, "Buying Power: xxx.xx");
+//    mvwprintw(window_4, 3, 1, "Open P/L    : xx.xx%");
+//    wrefresh(window_4);
+
     // Be nice.
     addstr("   Hello, Welcome to Optional -- Status: ");
     if (this->account.get_authorization_status() == OAuthStatus::Valid) {
@@ -35,7 +41,8 @@ void Optional::Display::run_loop() {
     refresh();
 
     // Handle user input.
-    do {
+    while((keypress = getch()) != 'q')
+    {
         switch(keypress) {
             case 's':
                 printw("s! ");
@@ -49,8 +56,9 @@ void Optional::Display::run_loop() {
             default:
                 break;
         }
+
+        this->refresh_balances();
     }
-    while((keypress = getch()) != 'q');
 }
 
 void Optional::Display::initialize_layout_large_top_three_bottom() {
@@ -60,6 +68,7 @@ void Optional::Display::initialize_layout_large_top_three_bottom() {
     keypad(stdscr, TRUE);
     curs_set(0);
     noecho();
+    timeout(500); // Blocking calls (like getch()), timeout after 500ms.
 
     // Make it pretty.
     if (has_colors()) {
@@ -94,6 +103,8 @@ void Optional::Display::initialize_layout_large_top_three_bottom() {
     int w_bottom_right_width  = COLS / 3 - 2;
     int w_bottom_right_height = LINES / 2 - 1;
 
+    refresh();
+
     // Actually create windows.
     this->windows.emplace("top", this->create_newwin(w_top_height, w_top_width, w_top_starty, w_top_startx));
     wrefresh(this->windows["top"]);
@@ -108,11 +119,6 @@ void Optional::Display::initialize_layout_large_top_three_bottom() {
     wrefresh(this->windows["bottom right"]);
 
     refresh();
-    // Example printing in window.
-//    mvwprintw(window_4, 1, 1, "Cash & Sweep: xxx.xx");
-//    mvwprintw(window_4, 2, 1, "Buying Power: xxx.xx");
-//    mvwprintw(window_4, 3, 1, "Open P/L    : xx.xx%");
-//    wrefresh(window_4);
 }
 
 
@@ -132,6 +138,16 @@ void Optional::Display::destroy_win(WINDOW *local_win)
     wborder(local_win, ' ', ' ', ' ',' ',' ',' ',' ',' ');
     wrefresh(local_win);
     delwin(local_win);
+}
+
+void Optional::Display::refresh_balances() {
+    WINDOW* balances = this->windows["bottom right"];
+
+    std::string available_funds = "Available Trade Funds: ";
+    available_funds.append(std::to_string(this->account.current_cash_available_for_trading()));
+
+    werase(balances);
+    mvwprintw(balances, 1, 1, available_funds.c_str());
 }
 
 

@@ -6,20 +6,9 @@
 
 using namespace std;
 
-Optional::Account& initialize_account();
 void handle_failed_authentication(Optional::Account& account, std::string oauth_uid);
 
 int main(){
-    Optional::Account& account = initialize_account();
-    Optional::Display display(account);
-
-    display.run_loop();
-
-    return 0;
-}
-
-
-Optional::Account& initialize_account() {
     string account_number;
     string oauth_uid;
 
@@ -33,8 +22,13 @@ Optional::Account& initialize_account() {
     if (account.get_authorization_status() != Optional::OAuthStatus::Valid) {
         handle_failed_authentication(account, oauth_uid);
     }
-}
 
+    Optional::Display display(account);
+
+    display.run_loop();
+
+    return 0;
+}
 
 void handle_failed_authentication(Optional::Account& account, std::string oauth_uid) {
     // Loading refresh from disk failed, we need to manually get a new token.
