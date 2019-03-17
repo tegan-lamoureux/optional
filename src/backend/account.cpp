@@ -1052,6 +1052,72 @@ std::vector<std::string> Optional::Account::positions() {
     }
 }
 
+std::vector<std::string> Optional::Account::orders() {
+    std::vector<std::string> display_data;
+
+    try {
+        rapidjson::Value& account = this->parse_json_field("securitiesAccount", this->account_details);
+        rapidjson::Value& data = this->parse_json_field("orderStrategies", account);
+
+        for (auto& order : data.GetArray()) {
+            // Enforce only single limit orders for now.
+            std::string d1 = order["orderStrategyType"].GetString();
+            std::string d2 = order["orderType"].GetString();
+            if (order["orderStrategyType"].GetString() != std::string("SINGLE") || order["orderType"].GetString() != std::string("LIMIT")) {
+                continue;
+            }
+
+            std::stringstream placed_qty;
+            std::stringstream filled_qty;
+            std::stringstream price;
+            std::stringstream order_id;
+
+            placed_qty << std::fixed << std::setprecision(1) << order["quantity"].GetDouble();
+            filled_qty << std::fixed << std::setprecision(1) << order["filledQuantity"].GetDouble();
+            price << std::fixed << std::setprecision(2) << order["price"].GetDouble();
+            order_id << order["orderId"].GetInt();
+
+            // Line 1 - Order ID, price, status.
+            display_data.push_back(
+                        order_id.str() +
+                        std::string(" [$") +
+                        price.str() +
+                        std::string("] [") +
+                        order["status"].GetString() +
+                        std::string("]")
+                        );
+
+            // Line 3, leg info
+            for (auto& leg : order["orderLegCollection"].GetArray()) {
+                rapidjson::Value& instrument = leg["instrument"];
+                display_data.push_back(
+                            std::string("\t") +
+                            leg["instruction"].GetString() +
+                            std::string(" ") +
+                            instrument["symbol"].GetString() +
+                            std::string(" [") +
+                            instrument["assetType"].GetString() +
+                            std::string("] ")
+                            );
+            }
+
+            display_data.push_back(
+                        std::string("\tQty Placed: ") +
+                        placed_qty.str() +
+                        std::string("  Qty Filled: ") +
+                        filled_qty.str()
+                        );
+
+            display_data.push_back("");
+        }
+
+        return display_data;
+    }
+    catch (...) {
+        return std::vector<std::string>();
+    }
+}
+
 rapidjson::Value& Optional::Account::parse_json_field(std::string name, rapidjson::Document& to_parse) {
     if (to_parse.HasMember(name.c_str())) {
         return to_parse[name.c_str()];

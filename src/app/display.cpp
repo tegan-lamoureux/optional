@@ -43,6 +43,7 @@ void Optional::Display::run_loop() {
     if (this->account.refresh_account()) {
         this->refresh_balances();
         this->refresh_positions();
+        this->refresh_orders();
     }
 
     // Handle user input.
@@ -52,6 +53,7 @@ void Optional::Display::run_loop() {
                 if (this->account.refresh_account()) {
                     this->refresh_balances();
                     this->refresh_positions();
+                    this->refresh_orders();
                 }
                 break;
 
@@ -122,12 +124,6 @@ void Optional::Display::initialize_layout_large_top_three_bottom() {
            w_bottom_left_starty,
            w_bottom_left_startx);
     this->windows.emplace("bottom left", bottom_left);
-
-    wattron(bottom_left.window(), A_BOLD);
-    wattron(bottom_left.window(), COLOR_PAIR(5));
-    mvwprintw(bottom_left.window(), 1, 1, "Orders");
-    wattroff(bottom_left.window(), A_BOLD);
-    wattroff(bottom_left.window(), COLOR_PAIR(5));
     wrefresh(this->windows["bottom left"].window());
 
 
@@ -143,6 +139,7 @@ void Optional::Display::initialize_layout_large_top_three_bottom() {
            w_bottom_middle_starty,
            w_bottom_middle_startx);
     this->windows.emplace("bottom middle", bottom_middle);
+    wrefresh(this->windows["bottom middle"].window());
 
 
     // Window 4 (third screen, bottom right)
@@ -234,8 +231,6 @@ void Optional::Display::refresh_balances() {
 
 void Optional::Display::refresh_positions() {
     WINDOW* position_window = this->windows["bottom middle"].window();
-    int width = this->windows["bottom middle"].width();
-    int height = this->windows["bottom middle"].height();
 
     clear_and_redraw_window(position_window);
 
@@ -248,22 +243,64 @@ void Optional::Display::refresh_positions() {
     std::vector<std::string> positions = this->account.positions();
     int row = 3;
 
-    for (std::string position : positions) {
-        bool is_sub_row = position.length() > 0 && position[0] == '\t';
+    if (positions.empty()) {
+        mvwprintw(position_window, 3, 1, "No positions held.");
+    }
+    else {
+        for (std::string position : positions) {
+            bool is_sub_row = position.length() > 0 && position[0] == '\t';
 
-        if (is_sub_row) {
-            wattron(position_window, COLOR_PAIR(4));
-        }
+            if (is_sub_row) {
+                wattron(position_window, COLOR_PAIR(4));
+            }
 
-        mvwprintw(position_window, row++, 1, position.c_str());
+            mvwprintw(position_window, row++, 1, position.c_str());
 
-        if (is_sub_row) {
-            wattroff(position_window, COLOR_PAIR(4));
+            if (is_sub_row) {
+                wattroff(position_window, COLOR_PAIR(4));
+            }
         }
     }
 
     box(position_window, 0, 0);
     wrefresh(position_window);
+}
+
+void Optional::Display::refresh_orders() {
+    WINDOW* order_window = this->windows["bottom left"].window();
+
+    clear_and_redraw_window(order_window);
+
+    wattron(order_window, A_BOLD);
+    wattron(order_window, COLOR_PAIR(5));
+    mvwprintw(order_window, 1, 1, "Recent Orders");
+    wattroff(order_window, A_BOLD);
+    wattroff(order_window, COLOR_PAIR(5));
+
+    std::vector<std::string> orders = this->account.orders();
+    int row = 3;
+
+    if (orders.empty()) {
+        mvwprintw(order_window, 3, 1, "No recent orders.");
+    }
+    else {
+        for (std::string order : orders) {
+            bool is_sub_row = order.length() > 0 && order[0] == '\t';
+
+            if (is_sub_row) {
+                wattron(order_window, COLOR_PAIR(4));
+            }
+
+            mvwprintw(order_window, row++, 1, order.c_str());
+
+            if (is_sub_row) {
+                wattroff(order_window, COLOR_PAIR(4));
+            }
+        }
+    }
+
+    box(order_window, 0, 0);
+    wrefresh(order_window);
 }
 
 std::string Optional::Display::popup_get_symbol_name() {

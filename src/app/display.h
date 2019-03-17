@@ -65,6 +65,7 @@ private:
 
     void refresh_balances();
     void refresh_positions();
+    void refresh_orders();
 
     std::string popup_get_symbol_name();
 };
