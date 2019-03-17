@@ -18,6 +18,10 @@ public:
 
     bool refresh_account();
 
+    // FIXME this shit
+    std::vector<std::string> get_positions() { return this->positions; }
+    std::vector<std::string> get_orders() { return this->orders; }
+
     // FIXME: populate with rest of available fields.
     std::string account_id();
     std::string account_type();
@@ -97,10 +101,15 @@ public:
     double initial_short_balance();
     double initial_account_value();
 
-
-
     OAuthStatus get_authorization_status();
     std::shared_ptr<Rest> get_rest_interface();
+
+    // okay so left off here, have the account class contain a list of symbols it wants to access
+    // (since access is based on account credentails.) This is okay, since the symbol class
+    // will be generic enough to support both modes, and I'm not locking it in here to any
+    // specific one.
+    //
+    // This can be done with A HASHMAP AGAIN OMG where the symbol is in the list
 
 private:
     Account() = delete;
@@ -112,6 +121,10 @@ private:
     std::string account_post_resource_url = "https://api.tdameritrade.com/v1/accounts/";
 
     rapidjson::Document account_details;
+
+    // FIXME: Fill these as part of account refresh.
+    std::vector<std::string> positions;
+    std::vector<std::string> orders;
 
     rapidjson::Value& parse_json_field(std::string name, rapidjson::Document& to_parse);
     rapidjson::Value& parse_json_field(std::string name, rapidjson::Value& to_parse);

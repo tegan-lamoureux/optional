@@ -1,6 +1,6 @@
 #include "account.h"
 
-#include <iostream> // FIXME: remove
+#include <fstream> // FIXME: Debug code, **Remove.
 
 
 Optional::Account::Account(std::string account_number_in, std::string oauth_uid_in)
@@ -21,7 +21,16 @@ bool Optional::Account::refresh_account() {
         std::string response = this->rest_interface->get(this->account_post_resource_url, header, success, false);
         this->account_details.Parse(response.c_str(), response.length());
 
-        std::cout << response << std::endl;
+        // FIXME: Debug code, **Remove.
+        static bool written_log = false;
+        if (!written_log) {
+            written_log = true;
+            std::ofstream outfile("account_details.log");
+            if (outfile) {
+                outfile << response;
+                outfile.close();
+            }
+        }
     }
 
     // FIXME: Need a validate method, can get stuff like: { "error" : "You don't have permission to access this resource." }

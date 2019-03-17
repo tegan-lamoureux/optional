@@ -20,11 +20,13 @@ set(
     src/backend/account.h
     src/backend/oauth.h
     src/backend/rest.h
+    src/backend/symbol.h
 
     # Source
     src/backend/account.cpp
     src/backend/oauth.cpp
     src/backend/rest.cpp
+    src/backend/symbol.cpp
 )
 
 set(

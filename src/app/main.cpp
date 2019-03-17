@@ -8,14 +8,20 @@ using namespace std;
 
 void handle_failed_authentication(Optional::Account& account, std::string oauth_uid);
 
-int main(){
+int main(int argc, char* argv[]){
     string account_number;
     string oauth_uid;
 
-    cout << "Please enter your account number: ";
-    cin >> account_number;
-    cout << "Please enter your oauth user id: ";
-    cin >> oauth_uid;
+    if (argc < 3) {
+        cout << "Please enter your account number: ";
+        cin >> account_number;
+        cout << "Please enter your oauth user id: ";
+        cin >> oauth_uid;
+    }
+    else {
+        account_number = argv[1];
+        oauth_uid = argv[2];
+    }
 
     Optional::Account account(account_number, oauth_uid);
 
