@@ -19,8 +19,7 @@ public:
     bool refresh_account();
 
     // FIXME this shit
-    std::vector<std::string> get_positions() { return this->positions; }
-    std::vector<std::string> get_orders() { return this->orders; }
+    //std::vector<std::string> get_orders() { return this->orders; }
 
     // FIXME: populate with rest of available fields.
     std::string account_id();
@@ -104,6 +103,8 @@ public:
     OAuthStatus get_authorization_status();
     std::shared_ptr<Rest> get_rest_interface();
 
+    std::vector<std::string> positions();
+
     // okay so left off here, have the account class contain a list of symbols it wants to access
     // (since access is based on account credentails.) This is okay, since the symbol class
     // will be generic enough to support both modes, and I'm not locking it in here to any
@@ -123,8 +124,8 @@ private:
     rapidjson::Document account_details;
 
     // FIXME: Fill these as part of account refresh.
-    std::vector<std::string> positions;
-    std::vector<std::string> orders;
+    std::vector<std::string> position_list;
+    std::vector<std::string> order_list;
 
     rapidjson::Value& parse_json_field(std::string name, rapidjson::Document& to_parse);
     rapidjson::Value& parse_json_field(std::string name, rapidjson::Value& to_parse);

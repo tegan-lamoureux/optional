@@ -10,6 +10,7 @@ Optional::Account::Account(std::string account_number_in, std::string oauth_uid_
     this->authorization = std::shared_ptr<OAuth>(new OAuth(oauth_uid_in, "https://localhost", this->rest_interface));
 
     this->account_post_resource_url.append(account_number);
+    this->account_post_resource_url.append("?fields=positions,orders");
 }
 
 bool Optional::Account::refresh_account() {
@@ -969,6 +970,41 @@ Optional::OAuthStatus Optional::Account::get_authorization_status() {
 
 std::shared_ptr<Optional::Rest> Optional::Account::get_rest_interface() {
     return this->rest_interface;
+}
+
+std::vector<std::string> Optional::Account::positions() {
+    std::vector<std::string> display_data;
+
+    try {
+        rapidjson::Value& account = this->parse_json_field("securitiesAccount", this->account_details);
+        rapidjson::Value& data = this->parse_json_field("positions", account);
+
+        for (auto& position : data.GetArray()) {
+            rapidjson::Value& instrument = this->parse_json_field("instrument", position);
+
+            if (instrument["assetType"].GetString() == std::string("EQUITY")) {
+                // We have a stock position.
+                display_data.push_back(
+                        instrument["symbol"].GetString() +
+                        std::string(" [Equity]")
+                );
+            }
+            else if (instrument["assetType"].GetString() == std::string("OPTION")) {
+                // We have an option position
+                display_data.push_back(
+                        instrument["underlyingSymbol"].GetString() +
+                        std::string(" [Option]") +
+                        std::string("\n\t") +
+                        instrument["description"].GetString()
+                );
+            }
+        }
+
+        return display_data;
+    }
+    catch (...) {
+        return std::vector<std::string>();
+    }
 }
 
 rapidjson::Value& Optional::Account::parse_json_field(std::string name, rapidjson::Document& to_parse) {

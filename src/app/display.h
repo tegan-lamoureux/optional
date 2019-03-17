@@ -64,6 +64,9 @@ private:
     void clear_and_redraw_window(WINDOW* window);
 
     void refresh_balances();
+    void refresh_positions();
+
+    std::string popup_get_symbol_name();
 };
 
 }

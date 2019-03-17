@@ -1,6 +1,8 @@
 #include "display.h"
 
 #include <ncurses.h>
+#include <form.h>
+#include <menu.h>
 #include <memory>
 
 Optional::Display::Display (Account& account_in)
@@ -19,12 +21,6 @@ Optional::Display::~Display() {
 
 void Optional::Display::run_loop() {
     int keypress;
-
-    // Example printing in window.
-//    mvwprintw(window_4, 1, 1, "Cash & Sweep: xxx.xx");
-//    mvwprintw(window_4, 2, 1, "Buying Power: xxx.xx");
-//    mvwprintw(window_4, 3, 1, "Open P/L    : xx.xx%");
-//    wrefresh(window_4);
 
     // Be nice.
     addstr("   Hello, Welcome to ");
@@ -46,6 +42,7 @@ void Optional::Display::run_loop() {
 
     if (this->account.refresh_account()) {
         this->refresh_balances();
+        this->refresh_positions();
     }
 
     // Handle user input.
@@ -145,13 +142,6 @@ void Optional::Display::initialize_layout_large_top_three_bottom() {
            w_bottom_middle_startx);
     this->windows.emplace("bottom middle", bottom_middle);
 
-    wattron(bottom_middle.window(), A_BOLD);
-    wattron(bottom_middle.window(), COLOR_PAIR(5));
-    mvwprintw(bottom_middle.window(), 1, 1, "Positions");
-    wattroff(bottom_middle.window(), A_BOLD);
-    wattroff(bottom_middle.window(), COLOR_PAIR(5));
-    wrefresh(this->windows["bottom middle"].window());
-
 
     // Window 4 (third screen, bottom right)
     int w_bottom_right_startx = 2 * (COLS / 3) + 1;
@@ -236,7 +226,37 @@ void Optional::Display::refresh_balances() {
     mvwprintw(balances, height - 2, width - 1 - net_liquid.length(), net_liquid.c_str());
     wattroff(balances, COLOR_PAIR(4));
 
+    box(balances, 0, 0);
     wrefresh(balances);
+}
+
+void Optional::Display::refresh_positions() {
+    WINDOW* position_window = this->windows["bottom middle"].window();
+    int width = this->windows["bottom middle"].width();
+    int height = this->windows["bottom middle"].height();
+
+    clear_and_redraw_window(position_window);
+
+    wattron(position_window, A_BOLD);
+    wattron(position_window, COLOR_PAIR(5));
+    mvwprintw(position_window, 1, 1, "Positions");
+    wattroff(position_window, A_BOLD);
+    wattroff(position_window, COLOR_PAIR(5));
+
+    std::vector<std::string> positions = this->account.positions();
+    int row = 3;
+
+    for (std::string position : positions) {
+        mvwprintw(position_window, row, 1, position.c_str());
+        row += 2;
+    }
+
+    box(position_window, 0, 0);
+    wrefresh(position_window);
+}
+
+std::string Optional::Display::popup_get_symbol_name() {
+
 }
 
 
