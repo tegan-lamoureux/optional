@@ -1,5 +1,8 @@
 #include "account.h"
 
+#include <iomanip>
+#include <sstream>
+
 #include <fstream> // FIXME: Debug code, **Remove.
 
 
@@ -981,23 +984,65 @@ std::vector<std::string> Optional::Account::positions() {
 
         for (auto& position : data.GetArray()) {
             rapidjson::Value& instrument = this->parse_json_field("instrument", position);
+            std::string header;
 
-            if (instrument["assetType"].GetString() == std::string("EQUITY")) {
+            std::stringstream longqty;
+            std::stringstream shortqty;
+            std::stringstream day_pl_percent;
+            std::stringstream day_pl;
+            std::stringstream market_value;
+            std::stringstream purchase_price;
+
+            bool is_option = instrument["assetType"].GetString() == std::string("OPTION");
+            bool is_equity = instrument["assetType"].GetString() == std::string("EQUITY");
+
+            longqty << std::fixed << std::setprecision(2) << position["longQuantity"].GetDouble();
+            shortqty << std::fixed << std::setprecision(2) << position["shortQuantity"].GetDouble();
+            day_pl_percent << std::fixed << std::setprecision(2) << position["currentDayProfitLossPercentage"].GetDouble();
+            day_pl << std::fixed << std::setprecision(2) << position["currentDayProfitLoss"].GetDouble();
+            market_value << std::fixed << std::setprecision(2) << position["marketValue"].GetDouble();
+            purchase_price << std::fixed << std::setprecision(4) << position["averagePrice"].GetDouble();
+
+            if (is_equity) {
                 // We have a stock position.
-                display_data.push_back(
-                        instrument["symbol"].GetString() +
-                        std::string(" [Equity]")
-                );
+                header = instrument["symbol"].GetString() + std::string(" [Equity]");
             }
-            else if (instrument["assetType"].GetString() == std::string("OPTION")) {
+            else if (is_option) {
                 // We have an option position
-                display_data.push_back(
-                        instrument["underlyingSymbol"].GetString() +
-                        std::string(" [Option]") +
-                        std::string("\n\t") +
-                        instrument["description"].GetString()
-                );
+                header = instrument["underlyingSymbol"].GetString() + std::string(" [Option]");
             }
+
+            // Line 1 - Symbol name, quantity short/long, market value.
+            display_data.push_back(
+                    header +
+                    std::string(" [+") +
+                    longqty.str() +
+                    std::string(" -") +
+                    shortqty.str() +
+                    std::string("] [$") +
+                    market_value.str() +
+                    std::string("]")
+            );
+
+            // Line 2 (Options only) - Call/Put Description
+            if (is_option) {
+                display_data.push_back(
+                            std::string("\t") +
+                            instrument["description"].GetString()
+                        );
+            }
+
+            // Line 3, balance and P/L
+            display_data.push_back(
+                    std::string("\tP/L: ") +
+                    day_pl_percent.str() +
+                    std::string("% ($") +
+                    day_pl.str() +
+                    std::string(")  Purchased @ $") +
+                    purchase_price.str()
+            );
+
+            display_data.push_back("");
         }
 
         return display_data;

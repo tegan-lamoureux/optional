@@ -51,6 +51,7 @@ void Optional::Display::run_loop() {
             case 'r':
                 if (this->account.refresh_account()) {
                     this->refresh_balances();
+                    this->refresh_positions();
                 }
                 break;
 
@@ -78,11 +79,12 @@ void Optional::Display::initialize_layout_large_top_three_bottom() {
     // Make it pretty.
     if (has_colors()) {
         start_color();
-        init_pair (1, COLOR_CYAN, COLOR_BLACK);
-        init_pair (2, COLOR_WHITE, COLOR_BLACK);
-        init_pair (3, COLOR_WHITE, COLOR_RED);
-        init_pair (4, COLOR_GREEN, COLOR_BLACK);
-        init_pair (5, COLOR_MAGENTA, COLOR_BLACK);
+        init_pair(1, COLOR_CYAN, COLOR_BLACK);
+        init_pair(2, COLOR_WHITE, COLOR_BLACK);
+        init_pair(3, COLOR_WHITE, COLOR_RED);
+        init_pair(4, COLOR_GREEN, COLOR_BLACK);
+        init_pair(5, COLOR_MAGENTA, COLOR_BLACK);
+        init_pair(6, COLOR_YELLOW, COLOR_BLACK);
     }
 
     refresh();
@@ -247,8 +249,17 @@ void Optional::Display::refresh_positions() {
     int row = 3;
 
     for (std::string position : positions) {
-        mvwprintw(position_window, row, 1, position.c_str());
-        row += 2;
+        bool is_sub_row = position.length() > 0 && position[0] == '\t';
+
+        if (is_sub_row) {
+            wattron(position_window, COLOR_PAIR(4));
+        }
+
+        mvwprintw(position_window, row++, 1, position.c_str());
+
+        if (is_sub_row) {
+            wattroff(position_window, COLOR_PAIR(4));
+        }
     }
 
     box(position_window, 0, 0);
