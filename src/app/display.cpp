@@ -24,10 +24,13 @@ void Optional::Display::run_loop() {
 
     // Be nice.
     addstr("   Hello, Welcome to ");
+    attron(A_BOLD);
     attron(COLOR_PAIR(5));
     addstr("Optional");
     attroff(COLOR_PAIR(5));
-    addstr("-- Status: ");
+    attroff(A_BOLD);
+    addstr(" -- Status: ");
+    attron(A_BOLD);
     if (this->account.get_authorization_status() == OAuthStatus::Valid) {
         attron(COLOR_PAIR(1));
         addstr("[Connected to Brokerage Account]");
@@ -38,6 +41,7 @@ void Optional::Display::run_loop() {
         addstr("[Not Connected]");
         attroff(COLOR_PAIR(3));
     }
+    attroff(A_BOLD);
     refresh();
 
     if (this->account.refresh_account()) {

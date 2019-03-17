@@ -36,7 +36,7 @@ protected:
 
 // There's no way to test this without legitimate credentials, so it's an interactive
 // test, and may be disabled by prepending DISABLED_ to the test name.
-TEST_F(AccountTests, can_create_account_and_get_details) {
+TEST_F(AccountTests, DISABLED_can_create_account_and_get_details) {
     string uid;
     string account_number;
 

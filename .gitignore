@@ -9,5 +9,6 @@
 *.pem
 *.dat
 build/
+test_data/
 optional
 notes
