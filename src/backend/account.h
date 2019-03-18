@@ -103,17 +103,18 @@ public:
     OAuthStatus get_authorization_status();
     std::shared_ptr<Rest> get_rest_interface();
 
+    // FIXME: This should really be a collection of position classes, with all
+    // formatting done in the display class.
     std::vector<std::string> positions();
 
     // only supports single limit orders at the moment
+    // FIXME: This should really be a collection of order classes, with all
+    // formatting done in the display class.
     std::vector<std::string> orders();
 
-    // okay so left off here, have the account class contain a list of symbols it wants to access
-    // (since access is based on account credentails.) This is okay, since the symbol class
-    // will be generic enough to support both modes, and I'm not locking it in here to any
-    // specific one.
-    //
-    // This can be done with A HASHMAP AGAIN OMG where the symbol is in the list
+    // FIXME: This should really be a collection of option chain classes, with all
+    // formatting done in the display class.
+    std::vector<std::string> option_chain(std::string symbol, double strike);
 
 private:
     Account() = delete;
@@ -125,6 +126,7 @@ private:
     std::string account_post_resource_url = "https://api.tdameritrade.com/v1/accounts/";
 
     rapidjson::Document account_details;
+
 
     rapidjson::Value& parse_json_field(std::string name, rapidjson::Document& to_parse);
     rapidjson::Value& parse_json_field(std::string name, rapidjson::Value& to_parse);

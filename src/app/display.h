@@ -61,11 +61,12 @@ private:
     void destroy_win(WINDOW *local_win);
     void set_window(int window_number);
 
-    void clear_and_redraw_window(WINDOW* window);
+    void clear_and_redraw_window(WINDOW* window, std::string title);
 
     void refresh_balances();
     void refresh_positions();
     void refresh_orders();
+    void refresh_symbol();
 
     std::string popup_get_symbol_name();
 };

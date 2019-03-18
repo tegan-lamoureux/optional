@@ -20,13 +20,13 @@ set(
     src/backend/account.h
     src/backend/oauth.h
     src/backend/rest.h
-    src/backend/symbol.h
+    src/backend/option_chain.h
 
     # Source
     src/backend/account.cpp
     src/backend/oauth.cpp
     src/backend/rest.cpp
-    src/backend/symbol.cpp
+    src/backend/option_chain.cpp
 )
 
 set(

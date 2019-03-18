@@ -1,5 +1,5 @@
-#ifndef OPTIONAL_SYMBOL_H
-#define OPTIONAL_SYMBOL_H
+#ifndef OPTIONAL_OPTION_CHAIN_H
+#define OPTIONAL_OPTION_CHAIN_H
 
 #include <memory>
 #include <vector>
@@ -15,24 +15,27 @@ namespace Optional {
 // unauthenticated data. Two modes, delayed strikes or instant with auth.
 //
 // Determine whether this will be options chain or symbol data. (Or both.)
-class Symbol
+class OptionChain
 {
 public:
-    Symbol(std::string symbol_name_in, std::string oauth_uid_in);
+    OptionChain(std::string symbol_name_in);
+    OptionChain(std::string symbol_name_in, std::shared_ptr<OAuth> oauth_in, std::shared_ptr<Rest> rest_in);
 
-    bool refresh_symbol();
+    bool refresh_chain(double strike_price, unsigned int strike_count);
 
-    OAuthStatus get_authorization_status();
-    std::shared_ptr<Rest> get_rest_interface();
+    std::vector<std::string> calls();
+    std::vector<std::string> puts();
 
 private:
-    Symbol() = delete;
+    OptionChain() = delete;
+
+    const bool using_authentication;
 
     std::shared_ptr<Rest> rest_interface;
     std::shared_ptr<OAuth> authorization;
 
     std::string symbol_name;
-    std::string symbol_post_resource_url = "https://api.tdameritrade.com/v1/instruments";
+    std::string option_chain_resource_url = "https://api.tdameritrade.com/v1/marketdata/chains";
 
     rapidjson::Document symbol_details;
 

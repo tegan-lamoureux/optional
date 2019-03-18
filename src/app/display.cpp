@@ -53,13 +53,17 @@ void Optional::Display::run_loop() {
     // Handle user input.
     do {
         switch(keypress) {
-            case 'r':
-                if (this->account.refresh_account()) {
-                    this->refresh_balances();
-                    this->refresh_positions();
-                    this->refresh_orders();
-                }
-                break;
+        case 'r':
+            if (this->account.refresh_account()) {
+                this->refresh_balances();
+                this->refresh_positions();
+                this->refresh_orders();
+            }
+            break;
+
+        case 'o':
+            this->refresh_symbol();
+            break;
 
             case KEY_UP:
             case KEY_DOWN:
@@ -113,6 +117,7 @@ void Optional::Display::initialize_layout_large_top_three_bottom() {
     mvwprintw(top.window(), 1, 1, "Symbol Information & Option Chains");
     wattroff(top.window(), A_BOLD);
     wattroff(top.window(), COLOR_PAIR(5));
+    mvwprintw(top.window(), 3, 1, "Press 'o' to load options chain.");
     wrefresh(this->windows["top"].window());
 
 
@@ -180,9 +185,14 @@ void Optional::Display::destroy_win(WINDOW *window) {
     delwin(window);
 }
 
-void Optional::Display::clear_and_redraw_window(WINDOW *window) {
+void Optional::Display::clear_and_redraw_window(WINDOW *window, std::string title) {
     werase(window);
     box(window, 0, 0);
+    wattron(window, A_BOLD);
+    wattron(window, COLOR_PAIR(5));
+    mvwprintw(window, 1, 1, title.c_str());
+    wattroff(window, A_BOLD);
+    wattroff(window, COLOR_PAIR(5));
     wrefresh(window);
 }
 
@@ -191,13 +201,7 @@ void Optional::Display::refresh_balances() {
     int width = this->windows["bottom right"].width();
     int height = this->windows["bottom right"].height();
 
-    clear_and_redraw_window(balances);
-
-    wattron(balances, A_BOLD);
-    wattron(balances, COLOR_PAIR(5));
-    mvwprintw(balances, 1, 1, "Margin Account Balances");
-    wattroff(balances, A_BOLD);
-    wattroff(balances, COLOR_PAIR(5));
+    clear_and_redraw_window(balances, "Margin Account Balances");
 
     std::string available_funds = std::to_string(this->account.initial_available_funds_non_marginable_trade());
     std::string stock_buying_power = (std::to_string(this->account.initial_buying_power()));
@@ -236,13 +240,7 @@ void Optional::Display::refresh_balances() {
 void Optional::Display::refresh_positions() {
     WINDOW* position_window = this->windows["bottom middle"].window();
 
-    clear_and_redraw_window(position_window);
-
-    wattron(position_window, A_BOLD);
-    wattron(position_window, COLOR_PAIR(5));
-    mvwprintw(position_window, 1, 1, "Positions");
-    wattroff(position_window, A_BOLD);
-    wattroff(position_window, COLOR_PAIR(5));
+    clear_and_redraw_window(position_window, "Positions");
 
     std::vector<std::string> positions = this->account.positions();
     int row = 3;
@@ -273,13 +271,7 @@ void Optional::Display::refresh_positions() {
 void Optional::Display::refresh_orders() {
     WINDOW* order_window = this->windows["bottom left"].window();
 
-    clear_and_redraw_window(order_window);
-
-    wattron(order_window, A_BOLD);
-    wattron(order_window, COLOR_PAIR(5));
-    mvwprintw(order_window, 1, 1, "Recent Orders");
-    wattroff(order_window, A_BOLD);
-    wattroff(order_window, COLOR_PAIR(5));
+    clear_and_redraw_window(order_window, "Recent Orders");
 
     std::vector<std::string> orders = this->account.orders();
     int row = 3;
@@ -305,6 +297,61 @@ void Optional::Display::refresh_orders() {
 
     box(order_window, 0, 0);
     wrefresh(order_window);
+}
+
+void Optional::Display::refresh_symbol() {
+    WINDOW* symbol_window = this->windows["top"].window();
+    std::string symbol;
+    std::string strike;
+
+    nocbreak();
+    echo();
+    clear_and_redraw_window(symbol_window, "Symbol Information & Option Chains");
+
+    mvwprintw(symbol_window, 3, 1, "Symbol for option chain to load: ");
+    wrefresh(symbol_window);
+    // Small curses input routine I found @: https://stackoverflow.com/questions/26920261/read-a-string-with-ncurses-in-c
+    int character = wgetch(symbol_window);
+    while (character != '\n'){
+        symbol.push_back(character);
+        character = wgetch(symbol_window);
+    }
+
+    mvwprintw(symbol_window, 4, 1, "Strike price: ");
+    wrefresh(symbol_window);
+    // Small curses input routine I found @: https://stackoverflow.com/questions/26920261/read-a-string-with-ncurses-in-c
+    character = wgetch(symbol_window);
+    while (character != '\n'){
+        strike.push_back(character);
+        character = wgetch(symbol_window);
+    }
+
+    clear_and_redraw_window(symbol_window, "Symbol Information & Option Chains");
+
+    std::vector<std::string> strikes = this->account.option_chain(symbol, std::stod(strike));
+    int row = 3;
+
+    if (strikes.empty()) {
+        mvwprintw(symbol_window, 3, 1, "No option chains exist at that symbol & strike.");
+    }
+    else {
+        for (std::string strike : strikes) {
+//            bool is_sub_row = strike.length() > 0 && order[0] == '\t';
+
+//            if (is_sub_row) {
+//                wattron(order_window, COLOR_PAIR(4));
+//            }
+
+//            mvwprintw(order_window, row++, 1, order.c_str());
+
+//            if (is_sub_row) {
+//                wattroff(order_window, COLOR_PAIR(4));
+//            }
+        }
+    }
+
+    box(symbol_window, 0, 0);
+    wrefresh(symbol_window);
 }
 
 std::string Optional::Display::popup_get_symbol_name() {
