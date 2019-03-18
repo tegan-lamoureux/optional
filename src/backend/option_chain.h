@@ -15,6 +15,9 @@ namespace Optional {
 // unauthenticated data. Two modes, delayed strikes or instant with auth.
 //
 // Determine whether this will be options chain or symbol data. (Or both.)
+//
+// I also need to be able to export strike data numerically. Figure out how to
+// get parsed data into a map? And have a strike/option data structure.
 class OptionChain
 {
 public:
@@ -38,6 +41,8 @@ private:
     std::string option_chain_resource_url = "https://api.tdameritrade.com/v1/marketdata/chains";
 
     rapidjson::Document symbol_details;
+
+    unsigned int strikes = 0;
 
     rapidjson::Value& parse_json_field(std::string name, rapidjson::Document& to_parse);
     rapidjson::Value& parse_json_field(std::string name, rapidjson::Value& to_parse);

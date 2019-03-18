@@ -2,6 +2,7 @@
 
 #include <iomanip>
 #include <sstream>
+#include <ctime>
 
 Optional::OptionChain::OptionChain(std::string symbol_name_in)
     : symbol_name(symbol_name_in)
@@ -21,6 +22,7 @@ Optional::OptionChain::OptionChain(std::string symbol_name_in, std::shared_ptr<O
 
 bool Optional::OptionChain::refresh_chain(double strike_price, unsigned int strike_count) {
     bool success = false;
+    this->strikes = strike_count;
 
     if (this->authorization->get_status() == Valid) {
         std::stringstream strike_count_ss;
@@ -34,9 +36,7 @@ bool Optional::OptionChain::refresh_chain(double strike_price, unsigned int stri
                 std::string("&contractType=ALL") +
                 std::string("&strikeCount=") +
                 strike_count_ss.str() +
-                std::string("&strategy=CALENDAR") +
-                std::string("&strike=") +
-                strike_price_ss.str() +
+                std::string("&strategy=SINGLE") +
                 std::string("&optionType=S");
 
         this->option_chain_resource_url.append(fields);
@@ -53,69 +53,63 @@ bool Optional::OptionChain::refresh_chain(double strike_price, unsigned int stri
 
 std::vector<std::string> Optional::OptionChain::calls() {
     try {
+        std::vector<std::string> chain;
+
         rapidjson::Value& call_date_map = this->parse_json_field("callExpDateMap", this->symbol_details);
-        rapidjson::Value& put_date_map = this->parse_json_field("putExpDateMap", this->symbol_details);
+        int parsed_strikes = 0;
 
-        for (auto date = call_date_map.Begin(); date != call_date_map.End(); date++) {
+        for (rapidjson::Value::ConstMemberIterator date_iterator = call_date_map.MemberBegin(); date_iterator != call_date_map.MemberEnd(); ++date_iterator){
+            for (rapidjson::Value::ConstMemberIterator strike_iterator = date_iterator->value.MemberBegin(); strike_iterator != date_iterator->value.MemberEnd(); ++strike_iterator){
+                for (auto& strike : strike_iterator->value.GetArray()) {
+                    std::string call_line = date_iterator->name.GetString();
+                    call_line.append(std::string("\t") + strike_iterator->name.GetString() + std::string("\t"));
 
-            //********************************
-            // Left off here.  <<<<<<<<<<<<<<<
-            //********************************
-            // Look at json options chain to left, pull second item (closest day), display chain from that,
-            // and keep going until have enough.
-            std::string actual = (*date).GetString();
-            actual = (*date).GetString();
-//            // Enforce only single limit orders for now.
-//            std::string d1 = order["orderStrategyType"].GetString();
-//            std::string d2 = order["orderType"].GetString();
-//            if (order["orderStrategyType"].GetString() != std::string("SINGLE") || order["orderType"].GetString() != std::string("LIMIT")) {
-//                continue;
-//            }
+                    std::stringstream last_price;
+                    std::stringstream bid_price;
+                    std::stringstream ask_price;
+                    std::stringstream delta;
+                    std::stringstream gamma;
+                    std::stringstream theta;
+                    std::stringstream vega;
+                    std::stringstream volume;
+                    std::stringstream volatility;
 
-//            std::stringstream placed_qty;
-//            std::stringstream filled_qty;
-//            std::stringstream price;
-//            std::stringstream order_id;
+                    last_price << std::fixed << std::setprecision(2) << strike["last"].GetDouble();
+                    bid_price << std::fixed << std::setprecision(2) << strike["bid"].GetDouble();
+                    ask_price << std::fixed << std::setprecision(2) << strike["ask"].GetDouble();
+                    delta << std::fixed << std::setprecision(3) << strike["delta"].GetDouble();
+                    gamma << std::fixed << std::setprecision(3) << strike["gamma"].GetDouble();
+                    theta << std::fixed << std::setprecision(3) << strike["theta"].GetDouble();
+                    vega << std::fixed << std::setprecision(3) << strike["vega"].GetDouble();
+                    volume << std::fixed << std::setprecision(3) << strike["totalVolume"].GetDouble();
+                    volatility << std::fixed << std::setprecision(3) << strike["volatility"].GetDouble();
 
-//            placed_qty << std::fixed << std::setprecision(1) << order["quantity"].GetDouble();
-//            filled_qty << std::fixed << std::setprecision(1) << order["filledQuantity"].GetDouble();
-//            price << std::fixed << std::setprecision(2) << order["price"].GetDouble();
-//            order_id << order["orderId"].GetInt();
-
-//            // Line 1 - Order ID, price, status.
-//            display_data.push_back(
-//                        order_id.str() +
-//                        std::string(" [$") +
-//                        price.str() +
-//                        std::string("] [") +
-//                        order["status"].GetString() +
-//                    std::string("]")
-//                    );
-
-//            // Line 3, leg info
-//            for (auto& leg : order["orderLegCollection"].GetArray()) {
-//                rapidjson::Value& instrument = leg["instrument"];
-//                display_data.push_back(
-//                            std::string("\t") +
-//                            leg["instruction"].GetString() +
-//                        std::string(" ") +
-//                        instrument["symbol"].GetString() +
-//                        std::string(" [") +
-//                        instrument["assetType"].GetString() +
-//                        std::string("] ")
-//                        );
-//            }
-
-//            display_data.push_back(
-//                        std::string("\tQty Placed: ") +
-//                        placed_qty.str() +
-//                        std::string("  Qty Filled: ") +
-//                        filled_qty.str()
-//                        );
-
-//            display_data.push_back("");
+                    call_line.append(strike["putCall"].GetString() +
+                            std::string("\tLast: ") +
+                            last_price.str() +
+                            std::string("\tBid: ") +
+                            bid_price.str() +
+                            std::string("\tAsk: ") +
+                            last_price.str() +
+                            std::string("\tDelta: ") +
+                            delta.str() +
+                            std::string("\tGamma: ") +
+                            gamma.str() +
+                            std::string("\tTheta: ") +
+                            theta.str() +
+                            std::string("\tVega: ") +
+                            vega.str() +
+                            std::string("\tVolatility: ") +
+                            volatility.str() +
+                            std::string("\tVolume: ") +
+                            volume.str()
+                            );
+                    chain.push_back(call_line);
+                }
+            }
         }
 
+        return chain;
     }
     catch (...) {
         return std::vector<std::string>();
@@ -124,98 +118,8 @@ std::vector<std::string> Optional::OptionChain::calls() {
 }
 
 std::vector<std::string> Optional::OptionChain::puts() {
-
+    // TODO: this
 }
-
-//double Optional::OptionChain::initial_short_balance() {
-//    try {
-//        rapidjson::Value& Symbol = this->parse_json_field("securitiesSymbol", this->Symbol_details);
-//        rapidjson::Value& data = this->parse_json_field("initialBalances", Symbol);
-//        rapidjson::Value& balance = this->parse_json_field("shortBalance", data);
-
-//        return balance.GetDouble();
-//    }
-//    catch (...) {
-//        return 0.0;
-//    }
-//}
-
-//std::vector<std::string> Optional::OptionChain::positions() {
-//    std::vector<std::string> display_data;
-
-//    try {
-//        rapidjson::Value& Symbol = this->parse_json_field("securitiesSymbol", this->Symbol_details);
-//        rapidjson::Value& data = this->parse_json_field("positions", Symbol);
-
-//        for (auto& position : data.GetArray()) {
-//            rapidjson::Value& instrument = this->parse_json_field("instrument", position);
-//            std::string header;
-
-//            std::stringstream longqty;
-//            std::stringstream shortqty;
-//            std::stringstream day_pl_percent;
-//            std::stringstream day_pl;
-//            std::stringstream market_value;
-//            std::stringstream purchase_price;
-
-//            bool is_option = instrument["assetType"].GetString() == std::string("OPTION");
-//            bool is_equity = instrument["assetType"].GetString() == std::string("EQUITY");
-
-//            longqty << std::fixed << std::setprecision(2) << position["longQuantity"].GetDouble();
-//            shortqty << std::fixed << std::setprecision(2) << position["shortQuantity"].GetDouble();
-//            day_pl_percent << std::fixed << std::setprecision(2) << position["currentDayProfitLossPercentage"].GetDouble();
-//            day_pl << std::fixed << std::setprecision(2) << position["currentDayProfitLoss"].GetDouble();
-//            market_value << std::fixed << std::setprecision(2) << position["marketValue"].GetDouble();
-//            purchase_price << std::fixed << std::setprecision(4) << position["averagePrice"].GetDouble();
-
-//            if (is_equity) {
-//                // We have a stock position.
-//                header = instrument["symbol"].GetString() + std::string(" [Equity]");
-//            }
-//            else if (is_option) {
-//                // We have an option position
-//                header = instrument["underlyingSymbol"].GetString() + std::string(" [Option]");
-//            }
-
-//            // Line 1 - Symbol name, quantity short/long, market value.
-//            display_data.push_back(
-//                    header +
-//                    std::string(" [+") +
-//                    longqty.str() +
-//                    std::string(" -") +
-//                    shortqty.str() +
-//                    std::string("] [$") +
-//                    market_value.str() +
-//                    std::string("]")
-//            );
-
-//            // Line 2 (Options only) - Call/Put Description
-//            if (is_option) {
-//                display_data.push_back(
-//                            std::string("\t") +
-//                            instrument["description"].GetString()
-//                        );
-//            }
-
-//            // Line 3, balance and P/L
-//            display_data.push_back(
-//                    std::string("\tP/L: ") +
-//                    day_pl_percent.str() +
-//                    std::string("% ($") +
-//                    day_pl.str() +
-//                    std::string(")  Purchased @ $") +
-//                    purchase_price.str()
-//            );
-
-//            display_data.push_back("");
-//        }
-
-//        return display_data;
-//    }
-//    catch (...) {
-//        return std::vector<std::string>();
-//    }
-//}
 
 rapidjson::Value& Optional::OptionChain::parse_json_field(std::string name, rapidjson::Document& to_parse) {
     if (to_parse.HasMember(name.c_str())) {

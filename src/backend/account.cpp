@@ -4,9 +4,6 @@
 #include <iomanip>
 #include <sstream>
 
-#include <fstream> // FIXME: Debug code, **Remove.
-
-
 Optional::Account::Account(std::string account_number_in, std::string oauth_uid_in)
     : account_number(account_number_in)
 {
@@ -25,17 +22,6 @@ bool Optional::Account::refresh_account() {
         std::string header = std::string("Authorization: Bearer ") + authorization->get_access_token();
         std::string response = this->rest_interface->get(this->account_post_resource_url, header, success, false);
         this->account_details.Parse(response.c_str(), response.length());
-
-        // FIXME: Debug code, **Remove.
-        static bool written_log = false;
-        if (!written_log) {
-            written_log = true;
-            std::ofstream outfile("account_details.log");
-            if (outfile) {
-                outfile << response;
-                outfile.close();
-            }
-        }
     }
 
     // FIXME: Need a validate method, can get stuff like: { "error" : "You don't have permission to access this resource." }
@@ -1125,73 +1111,9 @@ std::vector<std::string> Optional::Account::option_chain(std::string symbol, dou
     OptionChain chain(symbol, this->authorization, this->rest_interface);
     chain.refresh_chain(strike, 10);
 
-    std::vector<std::string> calls = chain.calls();
-//    std::vector<std::string> puts = chain.puts();
-
-//    for (auto call = calls.begin(), put = puts.begin(); call < calls.end() && put < puts.end(); call++, put++ ) {
-//        // build chain string here.
-//    }
-//    try {
-//        rapidjson::Value& account = this->parse_json_field("securitiesAccount", this->account_details);
-//        rapidjson::Value& data = this->parse_json_field("orderStrategies", account);
-
-//        for (auto& order : data.GetArray()) {
-//            // Enforce only single limit orders for now.
-//            std::string d1 = order["orderStrategyType"].GetString();
-//            std::string d2 = order["orderType"].GetString();
-//            if (order["orderStrategyType"].GetString() != std::string("SINGLE") || order["orderType"].GetString() != std::string("LIMIT")) {
-//                continue;
-//            }
-
-//            std::stringstream placed_qty;
-//            std::stringstream filled_qty;
-//            std::stringstream price;
-//            std::stringstream order_id;
-
-//            placed_qty << std::fixed << std::setprecision(1) << order["quantity"].GetDouble();
-//            filled_qty << std::fixed << std::setprecision(1) << order["filledQuantity"].GetDouble();
-//            price << std::fixed << std::setprecision(2) << order["price"].GetDouble();
-//            order_id << order["orderId"].GetInt();
-
-//            // Line 1 - Order ID, price, status.
-//            display_data.push_back(
-//                        order_id.str() +
-//                        std::string(" [$") +
-//                        price.str() +
-//                        std::string("] [") +
-//                        order["status"].GetString() +
-//                        std::string("]")
-//                        );
-
-//            // Line 3, leg info
-//            for (auto& leg : order["orderLegCollection"].GetArray()) {
-//                rapidjson::Value& instrument = leg["instrument"];
-//                display_data.push_back(
-//                            std::string("\t") +
-//                            leg["instruction"].GetString() +
-//                            std::string(" ") +
-//                            instrument["symbol"].GetString() +
-//                            std::string(" [") +
-//                            instrument["assetType"].GetString() +
-//                            std::string("] ")
-//                            );
-//            }
-
-//            display_data.push_back(
-//                        std::string("\tQty Placed: ") +
-//                        placed_qty.str() +
-//                        std::string("  Qty Filled: ") +
-//                        filled_qty.str()
-//                        );
-
-//            display_data.push_back("");
-//        }
-
-//    }
-//    catch (...) {
-//        return std::vector<std::string>();
-//    }
-        return display_data;
+    // TODO: I should be able to parse calls and puts here and return structures for them, not strings.
+    display_data = chain.calls();
+    return display_data;
 }
 
 rapidjson::Value& Optional::Account::parse_json_field(std::string name, rapidjson::Document& to_parse) {

@@ -302,7 +302,6 @@ void Optional::Display::refresh_orders() {
 void Optional::Display::refresh_symbol() {
     WINDOW* symbol_window = this->windows["top"].window();
     std::string symbol;
-    std::string strike;
 
     nocbreak();
     echo();
@@ -317,37 +316,21 @@ void Optional::Display::refresh_symbol() {
         character = wgetch(symbol_window);
     }
 
-    mvwprintw(symbol_window, 4, 1, "Strike price: ");
-    wrefresh(symbol_window);
-    // Small curses input routine I found @: https://stackoverflow.com/questions/26920261/read-a-string-with-ncurses-in-c
-    character = wgetch(symbol_window);
-    while (character != '\n'){
-        strike.push_back(character);
-        character = wgetch(symbol_window);
-    }
+    std::string title = std::string("Symbol Information & Option Chains [") + symbol + std::string("]");
+    clear_and_redraw_window(symbol_window, title);
 
-    clear_and_redraw_window(symbol_window, "Symbol Information & Option Chains");
-
-    std::vector<std::string> strikes = this->account.option_chain(symbol, std::stod(strike));
+    std::vector<std::string> strikes = this->account.option_chain(symbol, 1);
     int row = 3;
 
     if (strikes.empty()) {
         mvwprintw(symbol_window, 3, 1, "No option chains exist at that symbol & strike.");
     }
     else {
+        wattron(symbol_window, COLOR_PAIR(1));
         for (std::string strike : strikes) {
-//            bool is_sub_row = strike.length() > 0 && order[0] == '\t';
-
-//            if (is_sub_row) {
-//                wattron(order_window, COLOR_PAIR(4));
-//            }
-
-//            mvwprintw(order_window, row++, 1, order.c_str());
-
-//            if (is_sub_row) {
-//                wattroff(order_window, COLOR_PAIR(4));
-//            }
+            mvwprintw(symbol_window, row++, 1, strike.c_str());
         }
+        wattroff(symbol_window, COLOR_PAIR(1));
     }
 
     box(symbol_window, 0, 0);
