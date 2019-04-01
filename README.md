@@ -29,9 +29,6 @@ Backend implemented as a static library. Main app links against it, as an exampl
 * `mkdir build && cd build`
 * `cmake ../ && make`
 
-#### Dev Notes
-* doxygen comments.
-
 ***
 
 #### More Info
