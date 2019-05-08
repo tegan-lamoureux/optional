@@ -2,18 +2,22 @@
 
 A fast and simple c++ interface to the TD Ameritrade APIs for stock and options trading.
 
+![an example of my bad trades, aka thanks a lot trump for tweeting so much](https://github.com/tegan-lamoureux/tegan-lamoureux.github.io/raw/master/optional.png)
+
 ***
 
-#### What this is. (It's in progress.)
+#### What this is.
 Two main components:
 1. A c++ back-end for algorithmic trading through TD Ameritrade (paper money or live trading).
   * Goal is a simple interface that allows for quick backtesting and algorithm setup.
+  * Note: It's mostly there, although there are likely bugs, and I've continued some development offline. If you're keen on anything not here contact me and let me know.
+  
 2. A simple ncurses frontend to provide a basic terminal GUI for order placement/status, account stats, etc.
   * Display list of current positions. 
   * Display list of current orders. 
   * Display balances (Cash & Sweep, Net Liq, Buying Power).
-  * Sell and buy options/stock through simple form input.
-  * Display trades/ticks for symbol.
+  * Show option chains for a symbol.
+  * Note: This has largely just turned into a monitoring service for an account. The functionality is mostly in the backend.
 
 Backend implemented as a static library. Main app links against it, as an example of how an automated trading program could do the same.
 
@@ -21,13 +25,14 @@ Backend implemented as a static library. Main app links against it, as an exampl
 
 #### Build Requirements
 * cmake
-* curl
-* ncurses
+* curl development libraries
+* ncurses development libraries
 
-#### Building
+#### Building App and Unit Tests (On Linux)
 * Clone and cd into `optional`.
-* `mkdir build && cd build`
-* `cmake ../ && make`
+* Make a build directory in `optional` folder: `mkdir build && cd build`
+* Prepare build files: `cmake ../`
+* Build: `make`
 
 ***
 
