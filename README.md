@@ -2,7 +2,7 @@
 
 A fast and simple c++ interface to the TD Ameritrade APIs for stock and options trading.
 
-![an example of my bad trades, aka thanks a lot trump for tweeting so much](https://github.com/tegan-lamoureux/tegan-lamoureux.github.io/raw/master/optional.png)
+![here you can see some awful trades i made](https://raw.githubusercontent.com/tegan-lamoureux/tegan-lamoureux.github.io/master/images/static_hosting/optional.png)
 
 ***
 
