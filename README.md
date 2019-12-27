@@ -4,6 +4,8 @@ A fast and simple c++ interface to the TD Ameritrade APIs for stock and options 
 
 ![here you can see some awful trades i made](https://raw.githubusercontent.com/tegan-lamoureux/tegan-lamoureux.github.io/master/images/static_hosting/optional.png)
 
+**Note:** I was informed recently the OAUTH might be broken due to an API change. I don't plan on fixing it in the near future but feel free to make a PR.
+
 ***
 
 #### What this is.
